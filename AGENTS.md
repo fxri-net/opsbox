@@ -13,7 +13,7 @@
 
 - 跑 `pnpm verify`——**单一步骤清单真源**，步骤定义在 `scripts/verify.mjs`，本地与 CI 调用同一份；**禁止在本文件或 CI 配置里另写步骤枚举**，那是清单漂移的根因。快速 / 跨平台裁剪用 `pnpm verify --skip-coverage --skip-docs`。任一步失败即不得交付。
 - 注意 `pnpm lint` 是 eslint 不做类型检查、`pnpm build` 亦不拦截类型错误，**单跑二者不能替代本门禁**；类型检查须覆盖测试文件——基础 `tsconfig.json` 的 `exclude` 排除 `**/__tests__` 等测试路径，类型检查单独走放开该排除项的 `tsconfig.typecheck.json`，不得让测试文件落在盲区。
-- `toolkit tasks check`（由全局 `@fxri/toolkit` 提供）的 error 与 warn 均应为 0（除任务规格另有豁免）——已在 `pnpm verify` 内执行，此处强调阈值。
+- 任务区体检（`toolkit tasks check`，由全局 `@fxri/toolkit` 提供）由开发者在本地 / 归档流程自查，error 与 warn 均应为 0（除任务规格另有豁免）——**不纳入 `pnpm verify`**：该体检读 `.tasks/` 任务档、属开发期事项，且依赖外部开发工具，纳入会让门禁失去「无外部依赖、可重复」的性质。
 - grep 确认文档与规范措辞落地。
 - 测试不得复刻被测实现的逻辑：派生、镜像类逻辑的测试期望须直接调用真实实现，不得在测试内重写同一份转换逻辑——同错复刻会让实现缺陷照样漏过。
 

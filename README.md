@@ -85,7 +85,7 @@ const manifest = generateDdl({ dataDir: adapter.defaults.dataDir, outDir: ".opsb
 
 | 命令 | 说明 |
 | --- | --- |
-| `pnpm verify` | 唯一验收门禁（类型检查 + 静态检查 + 单测 + 覆盖率 + 构建 + CLI 冒烟 + 任务区体检） |
+| `pnpm verify` | 唯一验收门禁（类型检查 + 静态检查 + 单测 + 覆盖率 + 构建 + CLI 冒烟） |
 | `pnpm build` | 生产构建（tsup，cjs + esm 双格式 + dts） |
 | `pnpm dev` | 开发构建并运行 CLI |
 | `pnpm test` | 单元测试（vitest） |

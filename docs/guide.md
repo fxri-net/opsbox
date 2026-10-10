@@ -181,10 +181,10 @@ OPSBOX_NO_UPDATE_CHECK=1 node dist/cli.js --help    # 环境变量
 
 ```
 安装依赖（frozen 锁文件）→ 类型检查 → 静态检查（冷缓存）→ 单元测试 → 覆盖率
-  → 构建 → CLI 冒烟（各命令 --help + config status）→ 任务区体检
+  → 构建 → CLI 冒烟（各命令 --help + config status）
 ```
 
-时区约定：合成数据步骤钉 `TZ=UTC`；读真实任务数据的步骤钉 `TZ=Asia/Shanghai`。冒烟步骤 `config status` 钉 `OPSBOX_NO_UPDATE_CHECK=1`，保证门禁无外部依赖、可重复。
+时区约定：合成数据步骤钉 `TZ=UTC`。冒烟步骤 `config status` 钉 `OPSBOX_NO_UPDATE_CHECK=1`，保证门禁无外部依赖、可重复。
 
 ## 环境与版本兼容
 

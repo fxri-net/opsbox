@@ -206,6 +206,6 @@ interface PlatformAdapter {
 ## 8. 验收
 
 - **单一门禁真源**：`pnpm verify` 定义全部验收步骤并按序执行，本地与 CI 共用同一份清单。
-- 步骤：安装依赖（frozen 锁文件）→ 类型检查 → 静态检查（冷缓存）→ 单元测试 → 覆盖率 → 构建 → CLI 冒烟（各命令 `--help` + `config status`）→ 任务区体检。
-- 时区约定：合成数据步骤钉 `TZ=UTC`；读真实任务数据的步骤钉 `TZ=Asia/Shanghai`。
+- 步骤：安装依赖（frozen 锁文件）→ 类型检查 → 静态检查（冷缓存）→ 单元测试 → 覆盖率 → 构建 → CLI 冒烟（各命令 `--help` + `config status`）。
+- 时区约定：合成数据步骤钉 `TZ=UTC`。
 - 冒烟步骤 `config status` 钉 `OPSBOX_NO_UPDATE_CHECK=1`：只读体检退出码恒 0，且门禁须无外部依赖、可重复（不派生联网 worker）。

@@ -40,9 +40,8 @@ function reportToolchain() {
 }
 
 // 步骤清单即门禁定义：顺序有依赖（build 先于 CLI 冒烟），增删步骤只改这里
-// 时区（TZ）按「数据来源」分两轴钉死，避免「本地绿、CI 红」的时区耦合回归：
-// ① 合成数据步骤（单元测试 / 覆盖率门槛）钉 TZ=UTC：被测数据由测试当场构造、与运行环境时区无关；
-// ② 读真实任务数据的步骤（任务区体检）钉 TZ=Asia/Shanghai：任务档按本地时区书写，须在数据原地时区判定
+// 时区（TZ）钉死：合成数据步骤（单元测试 / 覆盖率门槛）钉 TZ=UTC——被测数据由测试当场构造、与运行环境时区无关，
+// 固定时区可避免「本地绿、CI 红」的时区耦合回归
 const steps = [
   { label: "安装依赖（frozen 锁文件）", command: "pnpm", args: ["install", "--frozen-lockfile"], fatal: true },
   { label: "类型检查", command: "pnpm", args: ["typecheck"] },
@@ -60,9 +59,7 @@ const steps = [
   { label: "CLI 冒烟 project-rename --help", args: ["dist/cli.js", "project-rename", "--help"] },
   { label: "CLI 冒烟 config --help", args: ["dist/cli.js", "config", "--help"] },
   // 只读体检：退出码恒 0；关升级检查避免冒烟时派生联网 worker（门禁须无外部依赖、可重复）
-  { label: "CLI 冒烟 config status", args: ["dist/cli.js", "config", "status"], env: { OPSBOX_NO_UPDATE_CHECK: "1" } },
-  // 任务区体检：读真实 .tasks 断言规范达标，须在数据原地时区（Asia/Shanghai）判定
-  { label: "任务区体检（tasks check）", command: "toolkit", args: ["tasks", "check"], env: { TZ: "Asia/Shanghai" } }
+  { label: "CLI 冒烟 config status", args: ["dist/cli.js", "config", "status"], env: { OPSBOX_NO_UPDATE_CHECK: "1" } }
 ]
 
 reportToolchain()
