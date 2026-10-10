@@ -6,6 +6,8 @@ dist
 local
 coverage
 .eslintcache
+docs/.vitepress/dist
+docs/.vitepress/cache
 *.tgz
 .archive.lock
 .opsboxrc.local.json

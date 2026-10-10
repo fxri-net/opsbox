@@ -8,6 +8,10 @@
     "url": "https://fxri.net:444/"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fxri-net/opsbox.git"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
@@ -30,6 +34,7 @@
     "dist",
     "README.md",
     "SPEC.md",
+    "CHANGELOG.md",
     "LICENSE",
     "NOTICE",
     "TRADEMARK.md",
@@ -38,14 +43,20 @@
   "scripts": {
     "dev": "pnpm build:debug && node ./dist/cli.js",
     "build": "cross-env NODE_ENV=production tsup",
-    "build:debug": "cross-env NODE_ENV=development tsup",
+    "build:debug": "cross-env NODE_ENV=development tsup --config tsup.dev.config.ts",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "changeset": "changeset",
+    "sync:changelog-doc": "node scripts/sync-changelog-doc.mjs",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "release": "pnpm build && pnpm publish"
   },
   "keywords": [
     "opsbox",
@@ -59,6 +70,7 @@
     "node-sqlite3-wasm": "^0.8.60"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "@eslint/js": "^10.0.1",
     "@types/node": "^20.19.21",
     "@vitest/coverage-v8": "^4.1.11",
@@ -67,6 +79,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.69.0",
+    "vitepress": "^1.6.4",
     "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.4",

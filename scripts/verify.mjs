@@ -11,6 +11,7 @@ const isWindows = process.platform === "win32"
 
 const flags = new Set(process.argv.slice(2))
 const skipCoverage = flags.has("--skip-coverage")
+const skipDocs = flags.has("--skip-docs")
 
 /**
  * 读取文本文件并去除首尾空白。
@@ -50,6 +51,8 @@ const steps = [
   { label: "单元测试", command: "pnpm", args: ["test"], env: { TZ: "UTC" } },
   { label: "覆盖率门槛", command: "pnpm", args: ["test:coverage"], skip: skipCoverage, env: { TZ: "UTC" } },
   { label: "构建", command: "pnpm", args: ["build"] },
+  // 文档站构建：VitePress 构建即做内部死链检查，文档改错会让门禁红，与 CI 同源
+  { label: "文档站构建（死链检查）", command: "pnpm", args: ["docs:build"], skip: skipDocs },
   { label: "CLI 冒烟 --help", args: ["dist/cli.js", "--help"] },
   { label: "CLI 冒烟 mysql-recover --help", args: ["dist/cli.js", "mysql-recover", "--help"] },
   { label: "CLI 冒烟 mysql-recover ddl --help", args: ["dist/cli.js", "mysql-recover", "ddl", "--help"] },

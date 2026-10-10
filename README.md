@@ -1,6 +1,17 @@
+<p align="center">
+  <img src="./docs/public/logo.png" width="128" alt="方弦运维工具箱">
+</p>
+
 # 方弦运维工具箱（opsbox）
 
+[![CI](https://github.com/fxri-net/opsbox/actions/workflows/ci.yml/badge.svg)](https://github.com/fxri-net/opsbox/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@fxri/opsbox)](https://www.npmjs.com/package/@fxri/opsbox)
+[![Node](https://img.shields.io/badge/node-%E2%89%A520-brightgreen)](./docs/getting-started.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+
 跨平台运维工具集：以「能力」为单位组织，所有能力默认全平台支持。
+
+> 国内网络建议优先 [Gitee 镜像](https://gitee.com/fxri/opsbox)（与 GitHub 同源同步）；问题反馈走 [GitHub Issues](https://github.com/fxri-net/opsbox/issues) 或 [Gitee Issues](https://gitee.com/fxri/opsbox/issues)。
 
 > 定位：把一次性运维脚本沉淀为可长期演进的工具集。平台差异经适配层隔离，平台无关核心只写一份，Linux / macOS / Windows 开箱即用——能力不限于宝塔，宝塔只是其中一种运行环境。
 
@@ -20,6 +31,22 @@
 | Windows | windows | `sc` → `net` | `icacls /reset` |
 
 平台在运行期自动探测，无需手工指定；数据目录、二进制目录、服务名等默认值随平台给出，均可经命令选项覆盖。
+
+## 📚 文档
+
+| 文档 | 适合谁 |
+| --- | --- |
+| [新手指南](./docs/getting-started.md) | 第一次接触，想 30 秒跑起来 |
+| [操作手册](./docs/handbook.md) | 日常照着做：每个能力该说什么、做什么 |
+| [完整攻略](./docs/guide.md) | 了解架构：能力组织、平台适配层、三层配置、机器可读输出 |
+| [CLI 参考](./docs/cli.md) | 查命令、参数、默认值、退出码 |
+| [API 参考](./docs/api.md) | 作为库引入 Node 项目 |
+| [配置参考](./docs/config.md) | 查 `.opsboxrc.json` 字段（全局 / 项目 / 本地三层） |
+| [更新日志](./CHANGELOG.md) | 查各版本变更内容 |
+| [FAQ](./docs/faq.md) | 遇到问题先来这里找 |
+| [推荐 AI 全局规则](./docs/ai-rules.md) | 想让 AI 助手按同一套纪律协作 |
+| [推荐提交信息规则](./docs/commit-rules.md) | 想让 AI 按统一格式写 git 提交信息 |
+| [完整文档站](https://fxri-net.github.io/opsbox/) | 在线阅读体验 |
 
 ## 🚀 快速上手
 

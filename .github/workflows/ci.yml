@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # 验收步骤清单的唯一真源是 scripts/verify.mjs：两个 job 都只调用它，不在 CI 里另写一份步骤，避免清单漂移
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # 完整克隆：docs:build 的 lastUpdated 依赖 git 提交时间，浅克隆会失真
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.34.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      # 覆盖率仅在 ubuntu 采集：v8 provider 的统计结果存在跨平台差异，双平台跑只会引入抖动，且覆盖率是增幅门槛而非回归指标，单平台足够
+      - name: 门禁校验（全量）
+        run: pnpm verify
+
+  # Windows 回归：类型 / 静态检查 / 单测 / 构建与主平台并行，避免跨平台路径与换行问题漏网
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.34.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: 门禁校验（Windows 裁剪）
+        run: pnpm verify --skip-coverage --skip-docs
