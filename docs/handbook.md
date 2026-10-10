@@ -4,13 +4,13 @@
 
 ## 一、首次使用
 
-**目标**：构建好工具集，跑通「查看命令树 → 看某一能力用法 → 执行能力」的最小闭环。
+**目标**：装好工具集，跑通「查看命令树 → 看某一能力用法 → 执行能力」的最小闭环。
 
 | 步骤 | 该做什么 | 会发生什么 |
 | --- | --- | --- |
-| 1 构建 | `pnpm install && pnpm build` | `dist/` 生成 CLI 入口（`dist/cli.js`，`bin` 名 `opsbox`） |
-| 2 看命令树 | `node dist/cli.js --help` | 列出全部能力与每行的简单说明 |
-| 3 看能力用法 | `node dist/cli.js <能力> --help` | 列出该能力的子命令、选项与默认值 |
+| 1 安装 | `pnpm i -g @fxri/opsbox`（推荐；项目 devDependency 见[新手指南 · 安装](./getting-started#安装)） | 全局可用 `opsbox` 命令 |
+| 2 看命令树 | `opsbox --help` | 列出全部能力与每行的简单说明 |
+| 3 看能力用法 | `opsbox <能力> --help` | 列出该能力的子命令、选项与默认值 |
 | 4 预演再执行 | 先加 `--dry-run`，确认无误后去掉 | `--dry-run` 只做前置校验并打印计划，不落盘 |
 
 平台在运行期自动探测，无需手工指定；数据目录、二进制目录、服务名等默认值随平台给出，均可经命令选项覆盖。
@@ -23,9 +23,9 @@
 
 | 场景 | 该做什么 | 会发生什么 |
 | --- | --- | --- |
-| 生成 DDL 产物 | `mysql-recover ddl --data <数据目录> --out .opsbox` | 从数据目录的 SDI 还原逐表 `CREATE TABLE`，落盘 `ddl/` 与 `manifest.json` |
-| 只看某个库 | `mysql-recover ddl --only <库名>` | 仅处理指定库（`--only` 可多次传入） |
-| 把孤儿库挂回实例 | `mysql-recover restore --work .opsbox --user root` | 依 `manifest.json` 走 Phase 0~4：冷备 → 停靠 → 建表 → 导入表空间 → 校验 |
+| 生成 DDL 产物 | `opsbox mysql-recover ddl --data <数据目录> --out .opsbox` | 从数据目录的 SDI 还原逐表 `CREATE TABLE`，落盘 `ddl/` 与 `manifest.json` |
+| 只看某个库 | `opsbox mysql-recover ddl --only <库名>` | 仅处理指定库（`--only` 可多次传入） |
+| 把孤儿库挂回实例 | `opsbox mysql-recover restore --work .opsbox --user root` | 依 `manifest.json` 走 Phase 0~4：冷备 → 停靠 → 建表 → 导入表空间 → 校验 |
 | 先看计划 | 对 `restore` 加 `--dry-run` | 仅做前置校验并打印执行计划，不落盘 |
 | 跳过冷备 / 校验 | `--skip-backup` / `--skip-validate` | 分别跳过整目录冷备与恢复后 Phase 4 校验（谨慎使用） |
 
@@ -39,9 +39,9 @@
 
 | 场景 | 该做什么 | 会发生什么 |
 | --- | --- | --- |
-| 先预览 | `project-rename <旧路径> <新路径> --dry-run` | 只输出迁移计划，不落盘 |
-| 正式迁移 | `project-rename <旧路径> <新路径>` | 第一趟：改写文本载体、丢弃缓存、搬迁目录、备份二进制状态，落 `resume.json`，最后移动项目目录 |
-| 续迁二进制状态 | `project-rename <旧路径> <新路径> --resume` | 第二趟：按清单定位宿主生成的新 id 目录，落位二进制状态副本并清理旧工作区目录 |
+| 先预览 | `opsbox project-rename <旧路径> <新路径> --dry-run` | 只输出迁移计划，不落盘 |
+| 正式迁移 | `opsbox project-rename <旧路径> <新路径>` | 第一趟：改写文本载体、丢弃缓存、搬迁目录、备份二进制状态，落 `resume.json`，最后移动项目目录 |
+| 续迁二进制状态 | `opsbox project-rename <旧路径> <新路径> --resume` | 第二趟：按清单定位宿主生成的新 id 目录，落位二进制状态副本并清理旧工作区目录 |
 | 限定宿主 | `--host <id>`（可多次传入） | 缺省迁移全部已检出宿主 |
 | 跳过备份 | `--no-backup`（危险） | 跳过备份，将无法回滚 |
 
@@ -54,9 +54,9 @@
 **目标**：只读查看三层配置文件的生效情况与来源，不打印任何配置值。
 
 ```bash
-node dist/cli.js config status                 # 三层命中 / 来源层 / 环境变量层
-node dist/cli.js config status --format json   # JSON 载荷输出到 stdout
-node dist/cli.js config status --cwd <path>    # 指定向上查找的起始目录
+opsbox config status                 # 三层命中 / 来源层 / 环境变量层
+opsbox config status --format json   # JSON 载荷输出到 stdout
+opsbox config status --cwd <path>    # 指定向上查找的起始目录
 ```
 
 `config status` 只读、退出码恒 0；它只列来源层与命中的环境变量键名，**不打印配置值**（避免把个人规则、本机路径落到终端 / CI 日志）。

@@ -10,15 +10,15 @@
 
 ### 怎么安装？
 
-本工具当前以源码构建产物的形式使用：
+本工具集已发布到 npm，按场景三选一：
 
 ```bash
-pnpm install
-pnpm build
-node dist/cli.js --help
+pnpm i -g @fxri/opsbox          # 全局安装（推荐个人多项目）
+pnpm add -D @fxri/opsbox        # 项目 devDependency（推荐团队项目）
+pnpm dlx @fxri/opsbox --help    # 不安装、临时执行
 ```
 
-构建后在项目内可 `pnpm exec opsbox <command>`，或直调 `node dist/cli.js <command>`。
+安装后 `opsbox --help` 可查看命令树；三种方式的取舍与 npm / yarn / bun 等价命令见[新手指南 · 安装](./getting-started#安装)。
 
 ### 支持哪些平台？
 
@@ -104,11 +104,11 @@ Linux / macOS / Windows 全平台。平台在运行期自动探测，无需手�
 
 ### 怎么升级？
 
-本工具以源码构建产物形式使用，升级即拉取最新源码后重新构建：
+按安装形态升级：
 
 ```bash
-pnpm install
-pnpm build
+pnpm i -g @fxri/opsbox                 # 全局安装（npm 用户 npm i -g @fxri/opsbox）
+pnpm add -D @fxri/opsbox@latest        # 项目 devDependency
 ```
 
 若以库形态引入，则按依赖方式更新 `@fxri/opsbox` 到目标版本。

@@ -50,7 +50,7 @@ src/
 从数据目录的 SDI 还原逐表建表 DDL 与产物清单：
 
 ```bash
-node dist/cli.js mysql-recover ddl --data <数据目录> --out .opsbox
+opsbox mysql-recover ddl --data <数据目录> --out .opsbox
 ```
 
 产物布局（`--out` 指定，默认 `.opsbox`）：
@@ -79,7 +79,7 @@ node dist/cli.js mysql-recover ddl --data <数据目录> --out .opsbox
 | Phase 4 | 运行中校验（表数 / `CHECK TABLE` / 逐库体积 / 行数抽样） |
 
 ```bash
-node dist/cli.js mysql-recover restore --work .opsbox --user root
+opsbox mysql-recover restore --work .opsbox --user root
 ```
 
 - `--dry-run` 仅做前置校验并打印计划
@@ -107,10 +107,10 @@ node dist/cli.js mysql-recover restore --work .opsbox --user root
 
 ```bash
 # 第一趟：改写文本载体、丢弃缓存、搬迁目录、备份二进制状态，落 resume.json，最后移动项目目录
-node dist/cli.js project-rename <旧路径> <新路径>
+opsbox project-rename <旧路径> <新路径>
 
 # 第二趟：按清单定位宿主生成的新 id 目录，落位二进制状态副本并清理旧工作区目录
-node dist/cli.js project-rename <旧路径> <新路径> --resume
+opsbox project-rename <旧路径> <新路径> --resume
 ```
 
 - `--dry-run` 仅输出迁移计划、不落盘；`--yes` 跳过交互确认
@@ -156,9 +156,9 @@ node dist/cli.js project-rename <旧路径> <新路径> --resume
 - **json 模式静默**：命令在 json 模式下抑制人类可读日志，使 stdout 只含一份载荷
 
 ```bash
-node dist/cli.js config status --format json
-node dist/cli.js mysql-recover ddl --data <数据目录> --format json
-node dist/cli.js project-rename <旧路径> <新路径> --format json
+opsbox config status --format json
+opsbox mysql-recover ddl --data <数据目录> --format json
+opsbox project-rename <旧路径> <新路径> --format json
 ```
 
 ⚠️ `ddl` 落盘的 `manifest.json` 经同一出口写入、携带 `schemaVersion` 锚点；`restore` 返回 `void`，未接入 `--format`。
@@ -170,7 +170,7 @@ CLI 每次命令执行时**同步读取本地缓存**，检测到新版本时向
 关闭方式二选一：
 
 ```bash
-OPSBOX_NO_UPDATE_CHECK=1 node dist/cli.js --help    # 环境变量
+OPSBOX_NO_UPDATE_CHECK=1 opsbox --help    # 环境变量
 ```
 
 或在配置里写 `"updateCheck": { "enabled": false }`（关闭后不派生后台进程、不发起任何网络请求）。

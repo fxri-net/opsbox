@@ -41,17 +41,35 @@ features:
 
 ## 30 秒上手
 
-```bash
-# 安装依赖后本地构建
-pnpm install
-pnpm build
+按你的包管理器选一条全局安装，随后查看命令树：
 
+::: code-group
+
+```sh [pnpm]
+pnpm i -g @fxri/opsbox
+```
+
+```sh [npm]
+npm i -g @fxri/opsbox
+```
+
+```sh [yarn]
+yarn global add @fxri/opsbox
+```
+
+```sh [bun]
+bun add -g @fxri/opsbox
+```
+
+:::
+
+```sh
 # 查看帮助（命令树）
-node dist/cli.js --help
+opsbox --help
 
 # 一个典型恢复流程：先生成 DDL 产物，再依产物把孤儿库挂回实例
-node dist/cli.js mysql-recover ddl --data <MySQL 数据目录> --out .opsbox
-node dist/cli.js mysql-recover restore --work .opsbox --user root
+opsbox mysql-recover ddl --data <MySQL 数据目录> --out .opsbox
+opsbox mysql-recover restore --work .opsbox --user root
 ```
 
 `restore` 缺省交互式输入口令（可用 `--password` 传入）；`--dry-run` 仅做前置校验并打印执行计划。

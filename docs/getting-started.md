@@ -1,6 +1,6 @@
 # 新手指南
 
-> 目标读者：第一次接触本工具集的用户。读完能跑通「安装构建 → 查看命令树 → 跑通一个能力」最短路径，并知道去哪查更细的内容。
+> 目标读者：第一次接触本工具集的用户。读完能跑通「安装 → 查看命令树 → 跑通一个能力」最短路径，并知道去哪查更细的内容。
 
 ## 解决什么问题
 
@@ -33,49 +33,78 @@
 | 机器可读输出 | `--format json` 把结果作为 JSON 载荷输出到 stdout，供脚本消费 |
 | 孤儿库 | 重装 MySQL 后，数据目录里还在、但实例上找不到的库 |
 
-## 安装与构建
+## 安装
 
-本工具集是 Node 包（`@fxri/opsbox`），当前版本以本地构建使用：
+本工具集是已发布到 npm 的 Node 包（`@fxri/opsbox`）。三种方式按场景选一：**个人多项目推荐方式一**（全局安装，所有项目开箱即用）；**团队项目建议方式二**（版本随仓库锁定，成员与 CI 自动一致）。
 
-```bash
-pnpm install
-pnpm build          # 生产构建（tsup，cjs + esm 双格式 + dts）
-```
-
-构建产物落在 `dist/`，CLI 入口为 `dist/cli.js`（`bin` 名 `opsbox`）。开发期也可用：
+### 方式一：全局安装（推荐个人多项目）
 
 ```bash
-pnpm dev            # 开发构建并运行 CLI
+pnpm i -g @fxri/opsbox   # pnpm（bin 落在 pnpm home，不受 nvm 切版本影响）
+npm i -g @fxri/opsbox    # npm（bin 硬链在 Node 目录，切版本需重装）
+yarn global add @fxri/opsbox   # 仅 yarn 1.x；v2+ 默认禁用 global，建议改用 pnpm
+bun i -g @fxri/opsbox    # bun
 ```
+
+适合个人在多个项目间快速使用。⚠️ 使用 nvm/fnm 等切换 Node 版本的工具时，npm 的全局包**绑定在安装时的 Node 版本上**，切版本后会「消失」——重新执行安装命令即可（pnpm 全局目录独立于 Node 版本，或用方式三规避）。
+
+### 方式二：项目 devDependency（推荐团队项目）
+
+```bash
+pnpm add -D @fxri/opsbox   # npm 用户：npm install -D @fxri/opsbox
+```
+
+版本随项目锁定、随仓库走，团队成员与 CI 在项目内用 `pnpm exec opsbox`（npm 用户 `npx opsbox`）即可用。
+
+### 方式三：不安装、临时执行
+
+```bash
+pnpm dlx @fxri/opsbox --help   # pnpm
+npx @fxri/opsbox --help        # npm / yarn
+bunx @fxri/opsbox --help       # bun
+```
+
+零安装先体验。⚠️ 首次执行有下载耗时，且每次都解析最新版本，不适合高频使用。
+
+### 安装方式对比
+
+| | 方式一 全局 | 方式二 项目 devDep | 方式三 临时执行 |
+| --- | --- | --- | --- |
+| 团队共享版本 | ❌ 各装各的 | ✅ 锁定 | ❌ 总是最新 |
+| 离线可用 | ✅ | ✅ | ❌ |
+| nvm 切版本影响 | npm ⚠️ 需重装；pnpm ✅ 不受影响 | 无 | 无 |
+| 推荐包管理器 | pnpm | pnpm | pnpm dlx |
+| 适合场景 | 个人多项目 | 团队 / 长期项目 | 快速试用 |
 
 ### 调用方式
 
 ```bash
-node dist/cli.js --help              # 本地构建产物直调
-pnpm exec opsbox --help              # 全局安装后（npm 用户 npx opsbox）
+opsbox <command>              # 全局安装后直调
+pnpm exec opsbox <command>    # 项目 devDependency（npm 用户 npx opsbox）
+pnpm dlx @fxri/opsbox <command>   # 不安装、临时执行
 ```
 
 ## 30 秒上手
 
 ```bash
 # 1. 看命令树（有哪些能力）
-node dist/cli.js --help
+opsbox --help
 
 # 2. 看某个能力的用法与选项
-node dist/cli.js mysql-recover --help
-node dist/cli.js project-rename --help
-node dist/cli.js config status --help
+opsbox mysql-recover --help
+opsbox project-rename --help
+opsbox config status --help
 
 # 3. 跑一个恢复流程：先生成 DDL 产物（只读数据目录）
-node dist/cli.js mysql-recover ddl --data <MySQL 数据目录> --out .opsbox
+opsbox mysql-recover ddl --data <MySQL 数据目录> --out .opsbox
 
 # 4. 依产物把孤儿库挂回实例（缺省交互式输入口令）
-node dist/cli.js mysql-recover restore --work .opsbox --user root
+opsbox mysql-recover restore --work .opsbox --user root
 
 # 5. 或跑一个目录改名（先预览，再执行，最后续迁二进制状态）
-node dist/cli.js project-rename <旧路径> <新路径> --dry-run
-node dist/cli.js project-rename <旧路径> <新路径>
-node dist/cli.js project-rename <旧路径> <新路径> --resume
+opsbox project-rename <旧路径> <新路径> --dry-run
+opsbox project-rename <旧路径> <新路径>
+opsbox project-rename <旧路径> <新路径> --resume
 ```
 
 `--dry-run` 只做前置校验并打印计划，不落盘；`project-rename` 迁移前须先关闭目标宿主。

@@ -8,7 +8,7 @@ README 只给最常用示例；本篇是完整的命令字典，覆盖全部参�
 
 ## 全局
 
-**调用方式**：下文示例统一用 `opsbox <command>` 直调（全局安装）或 `pnpm exec opsbox <command>`（项目内）；本地构建产物直调用 `node dist/cli.js <command>`。
+**调用方式**：下文示例统一用 `opsbox <command>` 直调（已全局安装）或 `pnpm exec opsbox <command>`（项目 devDependency，npm 用户 `npx opsbox`）；不安装临时执行用 `pnpm dlx @fxri/opsbox <command>`。
 
 ```text
 Usage: opsbox [options] [command]

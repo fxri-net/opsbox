@@ -48,24 +48,32 @@
 | [推荐提交信息规则](./docs/commit-rules.md) | 想让 AI 按统一格式写 git 提交信息 |
 | [完整文档站](https://fxri-net.github.io/opsbox/) | 在线阅读体验 |
 
+## 📦 安装
+
+已发布到 npm（`@fxri/opsbox`），按场景三选一：
+
+```bash
+pnpm i -g @fxri/opsbox          # 全局安装（推荐个人多项目；npm 用户 npm i -g）
+pnpm add -D @fxri/opsbox        # 项目 devDependency（推荐团队项目）
+pnpm dlx @fxri/opsbox --help    # 不安装、临时执行
+```
+
+方式取舍与 yarn / bun 等价命令见[新手指南 · 安装](./docs/getting-started.md#安装)。
+
 ## 🚀 快速上手
 
 ```bash
-# 安装依赖后本地构建
-pnpm install
-pnpm build
-
 # 查看帮助
-node dist/cli.js --help
+opsbox --help
 
 # 一个典型恢复流程：先生成 DDL 产物，再依产物把孤儿库挂回实例
-node dist/cli.js mysql-recover ddl --data <MySQL 数据目录> --out .opsbox
-node dist/cli.js mysql-recover restore --work .opsbox --user root
+opsbox mysql-recover ddl --data <MySQL 数据目录> --out .opsbox
+opsbox mysql-recover restore --work .opsbox --user root
 
 # 项目目录改名并迁移宿主状态（双趟）：先预览，再执行，最后续迁二进制状态
-node dist/cli.js project-rename <旧路径> <新路径> --dry-run
-node dist/cli.js project-rename <旧路径> <新路径>
-node dist/cli.js project-rename <旧路径> <新路径> --resume
+opsbox project-rename <旧路径> <新路径> --dry-run
+opsbox project-rename <旧路径> <新路径>
+opsbox project-rename <旧路径> <新路径> --resume
 ```
 
 `restore` 缺省交互式输入口令（可用 `--password` 传入）；`--dry-run` 仅做前置校验并打印执行计划。
@@ -80,17 +88,6 @@ import { recover, generateDdl, resolveAdapter, MysqlClient } from "@fxri/opsbox"
 const adapter = resolveAdapter()
 const manifest = generateDdl({ dataDir: adapter.defaults.dataDir, outDir: ".opsbox", ibd2sdiExe: "ibd2sdi", cacheDir: ".opsbox/.cache", only: [] })
 ```
-
-## 开发
-
-| 命令 | 说明 |
-| --- | --- |
-| `pnpm verify` | 唯一验收门禁（类型检查 + 静态检查 + 单测 + 覆盖率 + 构建 + CLI 冒烟） |
-| `pnpm build` | 生产构建（tsup，cjs + esm 双格式 + dts） |
-| `pnpm dev` | 开发构建并运行 CLI |
-| `pnpm test` | 单元测试（vitest） |
-
-协作规范沉淀于 `.tasks/conventions/`，实现须遵循其中条文（首条 C-1：能力全平台）。
 
 ## 📄 版权信息
 
