@@ -54,6 +54,7 @@ const steps = [
   { label: "CLI 冒烟 mysql-recover --help", args: ["dist/cli.js", "mysql-recover", "--help"] },
   { label: "CLI 冒烟 mysql-recover ddl --help", args: ["dist/cli.js", "mysql-recover", "ddl", "--help"] },
   { label: "CLI 冒烟 mysql-recover restore --help", args: ["dist/cli.js", "mysql-recover", "restore", "--help"] },
+  { label: "CLI 冒烟 project-rename --help", args: ["dist/cli.js", "project-rename", "--help"] },
   // 任务区体检：读真实 .tasks 断言规范达标，须在数据原地时区（Asia/Shanghai）判定
   { label: "任务区体检（tasks check）", command: "toolkit", args: ["tasks", "check"], env: { TZ: "Asia/Shanghai" } }
 ]

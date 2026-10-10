@@ -31,15 +31,27 @@ src/
 │   └── adapters/
 │       ├── unix.ts     # Linux / macOS 适配（含默认值）
 │       └── windows.ts  # Windows 适配（含默认值）
-└── mysql-recover/      # 能力：MySQL 库恢复
+├── mysql-recover/      # 能力：MySQL 库恢复
+│   ├── index.ts        # 能力出口
+│   ├── command.ts      # 命令注册
+│   ├── recover.ts      # 恢复编排（平台无关核心）
+│   ├── sdi-to-ddl.ts   # SDI → DDL 生成
+│   ├── mysql-client.ts # MySQL 客户端封装
+│   ├── report.ts       # 报告器
+│   ├── sql.ts          # SQL 字面量转义
+│   └── types.ts        # 定义集合
+└── project-rename/     # 能力：项目目录改名与宿主状态迁移
     ├── index.ts        # 能力出口
     ├── command.ts      # 命令注册
-    ├── recover.ts      # 恢复编排（平台无关核心）
-    ├── sdi-to-ddl.ts   # SDI → DDL 生成
-    ├── mysql-client.ts # MySQL 客户端封装
-    ├── report.ts       # 报告器
-    ├── sql.ts          # SQL 字面量转义
-    └── types.ts        # 定义集合
+    ├── engine.ts       # 迁移编排（平台无关核心，含双趟）
+    ├── plan.ts         # 迁移计划构建
+    ├── paths.ts        # URI 构造与改写原语
+    ├── artifacts.ts    # 载体抽象与动作原语
+    ├── sqlite.ts       # SQLite 状态库路径改写（纯 WASM 驱动）
+    └── adapters/
+        ├── types.ts    # HostAdapter 契约
+        ├── vscode-family.ts # VS Code 系宿主适配（参数化）
+        └── registry.ts # 宿主注册与解析
 ```
 
 ## 2. 平台层契约
@@ -116,7 +128,49 @@ interface PlatformAdapter {
 
 `manifest.json` 至少含 `generatedAt`、`dataDir`、`libs`、`tableCount`、`tables`、`warnings`。`restore` 缺失该产物时以明确中文错误终止，提示先执行 `ddl`。
 
-## 5. 验收
+## 5. project-rename 能力规范
+
+### 5.1 定位与边界
+
+- 把项目目录改名，并把各宿主（IDE/编辑器）中**跟随目录名**的关联状态一并迁移到新路径。
+- 只处理宿主关联状态；项目目录内的内容不动，由改名动作自身承载。
+- 平台无关核心（`engine.ts` / `plan.ts`）经宿主适配层（`HostAdapter`）调用宿主特有操作。
+
+### 5.2 载体分类
+
+| 类别 | 处置 |
+| --- | --- |
+| text | 文本（含路径引用）：改写路径 |
+| binary | 二进制不透明（如工作区 `state.vscdb`）：整文件搬迁，**绝不解析改写** |
+| sqlite | SQLite 状态库（如全局 `state.vscdb` 的 `ItemTable`）：解析并改写含旧路径的键值，做实验性项目重关联 |
+| cache | 缓存：直接丢弃，由应用按需重生成 |
+| dir | 目录（如 `worktrees/`）：整体随新名搬迁 |
+
+`sqlite` 改写经 `node-sqlite3-wasm`（纯 WASM、无需原生构建），故 `tsup` 须将其列入 `external` 保留自身路径解析。`text` / `sqlite` 之外的字节内容一律不改写。
+
+### 5.3 双趟迁移（two-pass）
+
+新工作区 id 不可推算，需宿主先生成新 id 目录后再做第二趟：
+
+- **第一趟**：改写文本载体、丢弃缓存、搬迁目录、备份二进制状态，并落 `resume.json` 续迁清单，最后移动项目目录。
+- **第二趟**（`--resume`）：按清单定位宿主生成的新 id 目录，把二进制状态副本落位并清理旧工作区目录。
+
+### 5.4 备份与回滚
+
+- 备份目录默认 `<旧路径>/.opsbox/project-rename/<时间戳>`，随目录改名移动到 `<新路径>` 下。
+- `resume.json` 记录二进制备份**相对本目录**的路径，保证改名后仍可解析。
+- `--backup-dir` 可指定备份根；`--no-backup` 跳过备份（危险：将无法回滚）。
+
+### 5.5 宿主适配
+
+- 契约：`HostAdapter { readonly id; readonly label; detect(): boolean; scan(oldPath, newPath): Artifact[] }`。
+- 首发 VS Code 系宿主（参数化适配 `vscode-family`）：Trae CN / Trae / VS Code / Cursor / Windsurf / VSCodium，共享 `User/`（`workspaceStorage`、`History`、`globalStorage`）与用户数据根下 `worktrees/`、`hub_event_cache/`、`mcps/` 布局。
+- 会话 / 任务正文绑定工作区身份、不可文件层搬运；本能力只改写宿主中的**项目关联引用**（如 `globalStorage/state.vscdb` 的 `solo-lite.local-project-folders`），使新路径被识别为同一项目（实验性重关联，尽力而为）。
+- `<用户数据根>/mcps/s_<目录名>-<8位hash>/` 为宿主自动生成的 MCP 工具描述，改名后旧目录作残留按缓存丢弃，新目录由宿主重建。
+- `--host <id>` 限定宿主（可多次传入）；缺省迁移全部已检出宿主。误纳无关工作区以 `workspace.json` 的 `folder` 严格匹配新/旧 URI 规避。
+- ⚠️ 迁移前须先关闭目标宿主，避免其改写状态文件造成竞争。
+
+## 6. 验收
 
 - **单一门禁真源**：`pnpm verify` 定义全部验收步骤并按序执行，本地与 CI 共用同一份清单。
 - 步骤：安装依赖（frozen 锁文件）→ 类型检查 → 静态检查（冷缓存）→ 单元测试 → 覆盖率 → 构建 → CLI 冒烟 → 任务区体检。

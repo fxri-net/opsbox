@@ -8,7 +8,16 @@ export default defineConfig({
       reporter: ["text", "json", "html"],
       include: ["src/**/*.ts"],
       // 排除纯编排/入口/外部进程边界：这些需真实 MySQL 实例才能覆盖，非纯函数逻辑不在单测范围
-      exclude: ["src/**/__tests__/**", "src/cli.ts", "src/index.ts", "src/**/command.ts", "src/**/mysql-client.ts", "src/**/recover.ts", "src/**/report.ts"]
+      exclude: [
+        "src/**/__tests__/**",
+        "src/cli.ts",
+        "src/index.ts",
+        "src/**/command.ts",
+        "src/**/engine.ts",
+        "src/**/mysql-client.ts",
+        "src/**/recover.ts",
+        "src/**/report.ts"
+      ]
     }
   }
 })

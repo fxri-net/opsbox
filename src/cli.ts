@@ -4,6 +4,7 @@
 import { Command, CommanderError } from "commander"
 import { createRequire } from "node:module"
 import { registerMysqlRecover } from "./mysql-recover"
+import { registerProjectRename } from "./project-rename"
 import { setupHelp } from "./help"
 import { formatCommanderError } from "./errors"
 import { DESCRIPTION } from "./about"
@@ -45,6 +46,7 @@ program
 
 // 逐能力自注册：新增能力只需在此追加一行，命令树与帮助随之生成
 registerMysqlRecover(program)
+registerProjectRename(program)
 
 // 帮助口径统一：命令声明完毕后递归换中文帮助文案并对齐父级清单
 // ⚠️ 顺序：须先 setupHelp 再 helpCommand——help 子命令自带 helpOption(false)，反过来会把它的 Usage 撑成 [options] [command]

@@ -9,6 +9,7 @@
 | 能力 | 适用场景 | 命令 |
 | --- | --- | --- |
 | MySQL 库恢复（mysql-recover） | 重装 MySQL 后，从遗留的数据目录还原库结构与数据 | `opsbox mysql-recover` |
+| 项目目录改名（project-rename） | 目录改名后，迁移各宿主中跟随目录名的关联状态（⚠️ 需先关闭目标宿主） | `opsbox project-rename <旧路径> <新路径>` |
 
 ## 平台支持
 
@@ -33,9 +34,16 @@ node dist/cli.js --help
 # 一个典型恢复流程：先生成 DDL 产物，再依产物把孤儿库挂回实例
 node dist/cli.js mysql-recover ddl --data <MySQL 数据目录> --out .opsbox
 node dist/cli.js mysql-recover restore --work .opsbox --user root
+
+# 项目目录改名并迁移宿主状态（双趟）：先预览，再执行，最后续迁二进制状态
+node dist/cli.js project-rename <旧路径> <新路径> --dry-run
+node dist/cli.js project-rename <旧路径> <新路径>
+node dist/cli.js project-rename <旧路径> <新路径> --resume
 ```
 
 `restore` 缺省交互式输入口令（可用 `--password` 传入）；`--dry-run` 仅做前置校验并打印执行计划。
+
+`project-rename` 迁移前须先关闭目标宿主；`--host` 可限定宿主，`--no-backup` 跳过备份（危险）。
 
 ## Node API
 

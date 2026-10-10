@@ -2,3 +2,4 @@
 export { DESCRIPTION } from "./about"
 export * from "./platform"
 export * from "./mysql-recover"
+export * from "./project-rename"
