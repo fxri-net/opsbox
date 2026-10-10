@@ -31,6 +31,8 @@
     "README.md",
     "SPEC.md",
     "LICENSE",
+    "NOTICE",
+    "TRADEMARK.md",
     "package.json"
   ],
   "scripts": {

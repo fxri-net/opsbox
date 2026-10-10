@@ -1,8 +1,10 @@
-// mysql-recover 能力入口：注册 ddl / restore 两个子命令，平台默认值由适配器提供，可经选项覆盖
+// mysql-recover 能力入口：注册 ddl / restore 两个子命令，路径默认值按 显式选项 > 能力配置段 > 平台默认 的优先级解析
 import { join, resolve } from "node:path"
 import type { Command } from "commander"
 import { resolveAdapter } from "../platform"
 import { promptPassword } from "../prompt"
+import { getConfigString } from "../config"
+import { printJson, assertJsonFormat } from "../json-output"
 import { resolveTool } from "./mysql-client"
 import { recover } from "./recover"
 import { generateDdl } from "./sdi-to-ddl"
@@ -21,6 +23,8 @@ interface DdlCliOptions {
   cache?: string
   /** 仅处理的库（可多次传入） */
   only: string[]
+  /** 输出格式 */
+  format?: string
 }
 
 /** restore 子命令参数 */
@@ -62,14 +66,24 @@ function collectLib(value: string, previous: string[]): string[] {
 }
 
 /**
- * 取生效路径：显式选项优先，其次平台推导值，两者皆空时明确报错。
+ * 构造人类可读进度输出：json 模式下改走 stderr，避免污染 stdout 的机器可读通道。
+ * @param json 是否处于 json 输出模式
+ * @return 输出函数
+ */
+function makeLogger(json: boolean): (message: string) => void {
+  return json ? (message: string) => process.stderr.write(`${message}\n`) : (message: string) => console.log(message)
+}
+
+/**
+ * 取生效路径：显式选项优先，其次能力配置段，最后平台推导值，皆空时明确报错。
  * @param explicit 显式传入值
+ * @param configured 能力配置段值
  * @param derived 平台推导值
  * @param hint 缺失时的提示语
  * @return 生效路径
  */
-function pickPath(explicit: string | undefined, derived: string, hint: string): string {
-  const value = (explicit ?? derived).trim()
+function pickPath(explicit: string | undefined, configured: string | undefined, derived: string, hint: string): string {
+  const value = (explicit ?? configured ?? derived).trim()
   if (!value) throw new Error(`无法从当前环境自动推导该路径，${hint}`)
   return value
 }
@@ -90,22 +104,27 @@ export function registerMysqlRecover(program: Command): void {
     .option("--ibd2sdi <path>", "ibd2sdi 可执行文件路径（默认取二进制目录）")
     .option("--cache <dir>", "ibd2sdi 结果缓存目录（默认 <out>/.cache）")
     .option("--only <lib>", "仅处理指定库（可多次传入；缺省处理全部）", collectLib, [])
+    .option("--format <format>", "输出格式（json，产物清单输出到 stdout）")
     .action((options: DdlCliOptions) => {
       try {
+        if (!assertJsonFormat(options.format)) return
+        const json = options.format === "json"
+        const log = makeLogger(json)
         const adapter = resolveAdapter()
-        const dataDir = pickPath(options.data, adapter.defaults.dataDir, "请用 --data 指定 MySQL 数据目录")
+        const dataDir = pickPath(options.data, getConfigString("mysql-recover", "dataDir"), adapter.defaults.dataDir, "请用 --data 指定 MySQL 数据目录")
         const outDir = resolve(options.out)
         const cacheDir = options.cache ? resolve(options.cache) : join(outDir, ".cache")
-        const binDir = pickPath(undefined, adapter.defaults.binDir, "请用 --ibd2sdi 指定 ibd2sdi 可执行文件路径")
+        const binDir = pickPath(undefined, getConfigString("mysql-recover", "binDir"), adapter.defaults.binDir, "请用 --ibd2sdi 指定 ibd2sdi 可执行文件路径")
         const ibd2sdiExe = options.ibd2sdi ?? resolveTool(binDir, "ibd2sdi")
-        console.log(`平台：${adapter.label}`)
-        console.log(`数据目录：${dataDir}`)
+        log(`平台：${adapter.label}`)
+        log(`数据目录：${dataDir}`)
         const manifest = generateDdl({ dataDir, outDir, ibd2sdiExe, cacheDir, only: options.only })
-        console.log(`已生成 ${manifest.tableCount} 张表的 DDL，覆盖 ${manifest.libs.length} 个库 → ${join(outDir, "ddl")}`)
+        log(`已生成 ${manifest.tableCount} 张表的 DDL，覆盖 ${manifest.libs.length} 个库 → ${join(outDir, "ddl")}`)
         if (manifest.warnings.length > 0) {
           console.warn(`⚠️ ${manifest.warnings.length} 条告警：`)
           for (const w of manifest.warnings.slice(0, 50)) console.warn(`  - ${w}`)
         }
+        if (json) printJson(manifest)
       } catch (e) {
         console.error(`⚠️ DDL 生成失败：${(e as Error).message}`)
         process.exitCode = 1
@@ -133,11 +152,11 @@ export function registerMysqlRecover(program: Command): void {
         console.log(`平台：${adapter.label}`)
         await recover(
           {
-            dataDir: pickPath(options.data, adapter.defaults.dataDir, "请用 --data 指定 MySQL 数据目录"),
-            binDir: pickPath(options.bin, adapter.defaults.binDir, "请用 --bin 指定 MySQL 二进制目录"),
+            dataDir: pickPath(options.data, getConfigString("mysql-recover", "dataDir"), adapter.defaults.dataDir, "请用 --data 指定 MySQL 数据目录"),
+            binDir: pickPath(options.bin, getConfigString("mysql-recover", "binDir"), adapter.defaults.binDir, "请用 --bin 指定 MySQL 二进制目录"),
             workDir: resolve(options.work),
-            backupDir: pickPath(options.backup, adapter.defaults.backupDir, "请用 --backup 指定整目录冷备目标"),
-            stagingDir: pickPath(options.staging, adapter.defaults.stagingDir, "请用 --staging 指定孤儿库临时停靠目录"),
+            backupDir: pickPath(options.backup, getConfigString("mysql-recover", "backupDir"), adapter.defaults.backupDir, "请用 --backup 指定整目录冷备目标"),
+            stagingDir: pickPath(options.staging, getConfigString("mysql-recover", "stagingDir"), adapter.defaults.stagingDir, "请用 --staging 指定孤儿库临时停靠目录"),
             serviceName: options.service ?? adapter.defaults.serviceName,
             user: options.user,
             password,

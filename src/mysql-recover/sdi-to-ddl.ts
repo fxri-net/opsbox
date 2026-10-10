@@ -9,6 +9,7 @@ import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:
 import { basename, dirname, join, posix } from "node:path"
 import { readTextFile, stripBom } from "../read-text"
 import { writeFileAtomic } from "../write-atomic"
+import { toJsonText } from "../json-output"
 import { quoteIdent, quoteStr, restoreGenerationExpr } from "./sql"
 import type { DdlOptions, Manifest, ManifestTable, SdiColumn, SdiIndex, SdiTable, TableEntry } from "./types"
 
@@ -384,8 +385,8 @@ function writeOutputs(tables: TableEntry[], opts: DdlOptions, warnings: string[]
     tables: manifestTables,
     warnings
   }
-  // manifest 是 restore 依赖的契约产物，走原子写避免半截文件被下游误读
-  writeFileAtomic(join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2))
+  // manifest 是 restore 依赖的契约产物，走原子写避免半截文件被下游误读；经 toJsonText 携带 schemaVersion 锚点
+  writeFileAtomic(join(outDir, "manifest.json"), toJsonText(manifest))
   return manifest
 }
 

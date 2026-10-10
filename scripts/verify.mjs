@@ -55,6 +55,9 @@ const steps = [
   { label: "CLI 冒烟 mysql-recover ddl --help", args: ["dist/cli.js", "mysql-recover", "ddl", "--help"] },
   { label: "CLI 冒烟 mysql-recover restore --help", args: ["dist/cli.js", "mysql-recover", "restore", "--help"] },
   { label: "CLI 冒烟 project-rename --help", args: ["dist/cli.js", "project-rename", "--help"] },
+  { label: "CLI 冒烟 config --help", args: ["dist/cli.js", "config", "--help"] },
+  // 只读体检：退出码恒 0；关升级检查避免冒烟时派生联网 worker（门禁须无外部依赖、可重复）
+  { label: "CLI 冒烟 config status", args: ["dist/cli.js", "config", "status"], env: { OPSBOX_NO_UPDATE_CHECK: "1" } },
   // 任务区体检：读真实 .tasks 断言规范达标，须在数据原地时区（Asia/Shanghai）判定
   { label: "任务区体检（tasks check）", command: "toolkit", args: ["tasks", "check"], env: { TZ: "Asia/Shanghai" } }
 ]

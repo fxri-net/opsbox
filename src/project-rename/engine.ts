@@ -33,6 +33,26 @@ export interface RenameOptions {
   yes: boolean
   /** 执行第二趟 */
   resume: boolean
+  /** 静默人类可读输出（json 模式下置真，仅保留 stderr 告警） */
+  quiet?: boolean
+}
+
+/** 改名结果摘要：供 --format json 输出与调用方消费 */
+export interface RenameResult {
+  /** 旧路径 */
+  oldPath: string
+  /** 新路径 */
+  newPath: string
+  /** 命中的宿主标识 */
+  hosts: string[]
+  /** 待迁移载体数量 */
+  artifactCount: number
+  /** 是否仅演练（dry-run） */
+  dryRun: boolean
+  /** 第二趟迁移的工作区状态库数（第一趟恒为 0） */
+  migrated: number
+  /** 第二趟改写的全局状态库数（第一趟恒为 0） */
+  patched: number
 }
 
 /** 第二趟续迁条目 */
@@ -154,13 +174,13 @@ function findNewId(workspaceRoot: string, newUri: string, oldId: string): string
  * 第一趟：备份并改写文本载体、改名目录、丢弃缓存，最后改名项目目录并落续迁清单。
  * @param opts 改名入参
  */
-async function firstPass(opts: RenameOptions): Promise<void> {
+async function firstPass(opts: RenameOptions): Promise<RenameResult> {
   const plan = buildPlan({ oldPath: opts.oldPath, newPath: opts.newPath, hosts: opts.hosts })
   preflight(plan)
-  printPlan(plan, opts)
+  if (!opts.quiet) printPlan(plan, opts)
   if (opts.dryRun) {
-    console.log("\nDryRun 结束，未做任何变更。")
-    return
+    if (!opts.quiet) console.log("\nDryRun 结束，未做任何变更。")
+    return summarize(plan, true, 0, 0)
   }
   if (!opts.yes) await confirm(`即将改名 ${plan.oldPath} → ${plan.newPath}，并迁移上述 ${plan.artifacts.length} 个载体，是否继续？`)
 
@@ -217,10 +237,13 @@ async function firstPass(opts: RenameOptions): Promise<void> {
 
   movePath(plan.oldPath, plan.newPath)
 
-  console.log(`\n✔ 第一趟完成：目录已改名为 ${plan.newPath}`)
-  if (entries.length > 0) {
-    console.log(`  接下来请重开宿主并打开新路径 ${plan.newPath}，再关闭后执行：opsbox project-rename --resume`)
+  if (!opts.quiet) {
+    console.log(`\n✔ 第一趟完成：目录已改名为 ${plan.newPath}`)
+    if (entries.length > 0) {
+      console.log(`  接下来请重开宿主并打开新路径 ${plan.newPath}，再关闭后执行：opsbox project-rename --resume`)
+    }
   }
+  return summarize(plan, false, 0, 0)
 }
 
 /**
@@ -290,21 +313,20 @@ function relOf(absPath: string): string {
 /**
  * 目录改名并迁移各宿主中跟随目录名的关联状态。
  * @param opts 改名入参
+ * @return 改名结果摘要
  * @example await renameProject({ oldPath: "D:/proj/old", newPath: "D:/proj/new", noBackup: false, dryRun: true, yes: true, resume: false })
  */
-export async function renameProject(opts: RenameOptions): Promise<void> {
-  if (opts.resume) {
-    await resumePass(opts)
-    return
-  }
-  await firstPass(opts)
+export async function renameProject(opts: RenameOptions): Promise<RenameResult> {
+  if (opts.resume) return resumePass(opts)
+  return firstPass(opts)
 }
 
 /**
  * 第二趟：按新 URI 反查新 id 目录，复制备份的工作区状态库并清理旧 id 目录。
  * @param opts 改名入参
+ * @return 改名结果摘要
  */
-async function resumePass(opts: RenameOptions): Promise<void> {
+async function resumePass(opts: RenameOptions): Promise<RenameResult> {
   const resumeDir = opts.backupDir ? resolve(opts.backupDir) : discoverResumeDir([opts.newPath, opts.oldPath, process.cwd()])
   const resumeFile = join(resumeDir, RESUME_FILE)
   if (!existsSync(resumeFile)) throw new Error(`未找到续迁清单：${resumeFile}`)
@@ -326,8 +348,39 @@ async function resumePass(opts: RenameOptions): Promise<void> {
 
   const patched = patchSqlite(manifest.oldPath, manifest.newPath, opts.hosts)
 
-  console.log(`\n✔ 第二趟完成：迁移 ${migrated} 个工作区状态库，已清理旧 id 目录`)
-  if (patched > 0) console.log(`  另改写 ${patched} 处全局状态库项目关联引用`)
+  if (!opts.quiet) {
+    console.log(`\n✔ 第二趟完成：迁移 ${migrated} 个工作区状态库，已清理旧 id 目录`)
+    if (patched > 0) console.log(`  另改写 ${patched} 处全局状态库项目关联引用`)
+  }
+  return {
+    oldPath: manifest.oldPath,
+    newPath: manifest.newPath,
+    hosts: opts.hosts ?? [],
+    artifactCount: manifest.entries.length,
+    dryRun: false,
+    migrated,
+    patched
+  }
+}
+
+/**
+ * 由迁移计划汇总改名结果摘要。
+ * @param plan 迁移计划
+ * @param dryRun 是否仅演练
+ * @param migrated 迁移的工作区状态库数
+ * @param patched 改写的全局状态库数
+ * @return 改名结果摘要
+ */
+function summarize(plan: MigrationPlan, dryRun: boolean, migrated: number, patched: number): RenameResult {
+  return {
+    oldPath: plan.oldPath,
+    newPath: plan.newPath,
+    hosts: plan.hosts.map((host) => host.id),
+    artifactCount: plan.artifacts.length,
+    dryRun,
+    migrated,
+    patched
+  }
 }
 
 /**

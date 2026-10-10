@@ -65,6 +65,18 @@ const manifest = generateDdl({ dataDir: adapter.defaults.dataDir, outDir: ".opsb
 
 协作规范沉淀于 `.tasks/conventions/`，实现须遵循其中条文（首条 C-1：能力全平台）。
 
-## License
+## 📄 版权信息
 
-[MIT](./LICENSE)
+作者：唐启云 <tqy@fxri.net>
+
+出品：方弦研究所
+
+版权：Copyright © 2026 唐启云. All rights reserved.
+
+网站：[方弦研究信息网](https://fxri.net:444/)
+
+协议：[MIT License](./LICENSE)
+
+商标："方弦®"为第42类注册商标（注册号89648411），本开源许可不授予商标使用权，详见 [TRADEMARK.md](./TRADEMARK.md)
+
+> 方弦研究所为唐启云个人项目品牌与出品方，非独立法人实体；本软件著作权归唐启云所有。

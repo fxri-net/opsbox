@@ -8,6 +8,6 @@ coverage
 .eslintcache
 *.tgz
 .archive.lock
-.toolkitrc.local.json
+.opsboxrc.local.json
 # SDI→DDL 生成器与恢复流程的产物目录（可由 opsbox mysql-recover 确定性重生成，不入库）
 .opsbox/
