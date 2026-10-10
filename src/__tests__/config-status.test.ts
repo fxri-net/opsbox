@@ -55,7 +55,8 @@ describe("foldHomeInText", () => {
   })
 
   it("同前缀兄弟目录不误折", () => {
-    expect(foldHomeInText(`路径 ${home}2 结束`)).not.toContain("~")
+    // 断言直测「未被折叠」本身：不能断言「输出不含 ~」——home 路径在 8.3 短名环境下自身即含 ~（如 C:/Users/RUNNER~1/...）
+    expect(foldHomeInText(`路径 ${home}2 结束`)).toBe(toPosix(`路径 ${home}2 结束`))
   })
 })
 
