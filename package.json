@@ -1,0 +1,77 @@
+{
+  "name": "@fxri/opsbox",
+  "version": "0.1.0",
+  "description": "跨平台运维工具集：以「能力」为单位组织，所有能力默认全平台支持。",
+  "author": {
+    "name": "唐启云",
+    "email": "tqy@fxri.net",
+    "url": "https://fxri.net:444/"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "opsbox": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "SPEC.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "scripts": {
+    "dev": "pnpm build:debug && node ./dist/cli.js",
+    "build": "cross-env NODE_ENV=production tsup",
+    "build:debug": "cross-env NODE_ENV=development tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "lint": "eslint . --cache",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "verify": "node scripts/verify.mjs"
+  },
+  "keywords": [
+    "opsbox",
+    "ops",
+    "devops",
+    "cross-platform",
+    "mysql"
+  ],
+  "dependencies": {
+    "commander": "^14.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20.19.21",
+    "@vitest/coverage-v8": "^4.1.11",
+    "cross-env": "^10.1.0",
+    "eslint": "^10.9.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^4.1.11"
+  },
+  "packageManager": "pnpm@10.34.4",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
+}
