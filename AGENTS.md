@@ -52,7 +52,7 @@
 
 发版按以下顺序分步执行，每步产物检查无误后再进行下一步：
 
-1. **消费变更集**：`pnpm changeset version`——按 bump 类型合并 `.changeset/` 全部变更集，生成 CHANGELOG 新版本块并升级 `package.json` 版本号；生成后人工检查润色条目，再执行 `pnpm sync:changelog-doc` 把根 `CHANGELOG.md` 全量镜像进 `docs/changelog.md`，与版本 / CHANGELOG 改动同批提交；
+1. **消费变更集**：`toolkit changelog version`——按 bump 类型合并 `.changeset/` 全部待发布变更集，生成 CHANGELOG 新版本块、升级 `package.json` 版本号并自动做中文语义分组标题格式化；生成后人工检查并按仓库风格润色条目，跑一次 `toolkit changelog --history format` 归一（同组顶层条目逐行相邻、去除多余空行），再执行 `pnpm sync:changelog-doc` 把根 `CHANGELOG.md` 全量镜像进 `docs/changelog.md`，与版本 / CHANGELOG 改动同批提交；
 2. **门禁校验**：`pnpm verify`——含构建、CLI 冒烟、文档站构建等全部步骤（步骤定义见 `scripts/verify.mjs`）；**任一步失败即中止发版**，不得进入提交、打标签、发布。⚠️ 门禁必须挡在 publish 之前——publish 不可逆（包发出即被使用者安装），而 push 失败重推即可，故关卡设在 publish 前而非推送前；
 3. **提交**：版本与 CHANGELOG 改动单独提交——发版提交是链路内置动作，独立于任务收尾自动提交（即使全局规则开启任务收尾自动提交，发版提交仍按本链路单独执行，不与普通任务收尾混批）；
 4. **打标签**：提交落盘后立即打 `vX.Y.Z` 标签并用 `git tag` 核对存在；
