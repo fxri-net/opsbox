@@ -141,7 +141,7 @@ export interface ManifestTable {
 
 /** DDL 生成产物清单 */
 export interface Manifest {
-  /** 生成时间（ISO） */
+  /** 生成时间（本地时区，YYYY-MM-DD HH:mm:ss） */
   generatedAt: string
   /** 数据目录 */
   dataDir: string
