@@ -30,10 +30,7 @@ pages:
   artifacts:
     paths:
       - public
+  # 默认分支每次推送都重建：站点输入不止 docs/（docs/.vitepress/config.mts 还直接引用 src/about），
+  # 枚举路径过滤必然漏项，故不设 changes 约束
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      changes:
-        - docs/**/*
-        - package.json
-        - pnpm-lock.yaml
-        - .gitlab-ci.yml

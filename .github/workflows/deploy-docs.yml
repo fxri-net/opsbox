@@ -1,14 +1,10 @@
 name: Deploy Docs
 
+# 默认分支每次推送都重建：站点输入不止 docs/（config.mts 还直接引用 src/about），
+# 枚举路径过滤必然漏项，故不设 paths 约束
 on:
   push:
     branches: [main]
-    paths:
-      - 'docs/**'
-      - 'CHANGELOG.md'
-      - '.github/workflows/deploy-docs.yml'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
 
 permissions:
   contents: read
