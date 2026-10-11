@@ -1,4 +1,4 @@
-// vitest 配置：默认不启用 coverage，通过 pnpm test:coverage 生成覆盖率报告
+// vitest 配置：默认不启用 coverage，通过 pnpm test:coverage 生成覆盖率报告，低于阈值直接失败
 import { defineConfig } from "vitest/config"
 
 export default defineConfig({
@@ -17,7 +17,14 @@ export default defineConfig({
         "src/**/mysql-client.ts",
         "src/**/recover.ts",
         "src/**/report.ts"
-      ]
+      ],
+      // 覆盖率门槛：低于任一阈值即失败退出（基准对齐全局 @fxri/toolkit）
+      thresholds: {
+        statements: 80,
+        branches: 65,
+        functions: 80,
+        lines: 82
+      }
     }
   }
 })
