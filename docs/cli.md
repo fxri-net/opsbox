@@ -24,6 +24,11 @@ Commands:
   project-rename [options] <old-path> <new-path>  项目目录改名，并迁移各宿主中跟随目录名的关联状态（跨平台）
   config [options] [command]                      配置分层：只读查看三层配置文件（全局层 / 项目层 / 本地层）的生效情况与来源
   help [command]                                  显示帮助
+
+文档站：
+  新手指南 https://fxri-net.github.io/opsbox/getting-started
+  完整攻略 https://fxri-net.github.io/opsbox/guide
+  全部文档 https://fxri-net.github.io/opsbox/
 ```
 
 | 参数 | 说明 |

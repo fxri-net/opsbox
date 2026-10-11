@@ -50,6 +50,17 @@ program
     }
   })
 
+// 文档站入口：帮助页脚指向线上文档，降低新用户查找成本（URL 与 README、站点默认 base /opsbox/ 一致）
+const DOC_LINKS = {
+  site: "https://fxri-net.github.io/opsbox/",
+  gettingStarted: "https://fxri-net.github.io/opsbox/getting-started",
+  guide: "https://fxri-net.github.io/opsbox/guide"
+}
+program.addHelpText(
+  "after",
+  ["", "文档站：", `  新手指南 ${DOC_LINKS.gettingStarted}`, `  完整攻略 ${DOC_LINKS.guide}`, `  全部文档 ${DOC_LINKS.site}`].join("\n")
+)
+
 // 逐能力自注册：新增能力只需在此追加一行，命令树与帮助随之生成
 registerMysqlRecover(program)
 registerProjectRename(program)
