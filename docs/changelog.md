@@ -6,6 +6,14 @@ outline: [2, 2]
 
 > 完整变更历史以随包发布的 CHANGELOG.md 为准，本页由 `pnpm sync:changelog-doc` 从根 CHANGELOG.md 自动同步，请勿手改。
 
+## 0.1.5
+
+> 2026-10-11 发布
+
+### ⚡ 优化改进
+
+- README 产品标题与能力名去除英文括注（如「方弦运维工具箱（opsbox）」→「方弦运维工具箱」、「MySQL 库恢复（mysql-recover）」→「MySQL 库恢复」），名称统一为纯中文，与文档站口径一致。
+
 ## 0.1.4
 
 > 2026-10-11 发布
