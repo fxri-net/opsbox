@@ -22,7 +22,7 @@
 | MySQL 库恢复（mysql-recover） | 重装 MySQL 后，从遗留的数据目录还原库结构与数据 | `opsbox mysql-recover` |
 | 项目目录改名（project-rename） | 目录改名后，迁移各宿主中跟随目录名的关联状态（⚠️ 需先关闭目标宿主） | `opsbox project-rename <旧路径> <新路径>` |
 
-## 平台支持
+## 🖥️ 平台支持
 
 | 平台 | 适配层 | 服务控制 | 权限复位 |
 | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ opsbox project-rename <旧路径> <新路径> --resume
 
 `project-rename` 迁移前须先关闭目标宿主；`--host` 可限定宿主，`--no-backup` 跳过备份（危险）。
 
-## Node API
+## 🧩 Node API
 
 ```ts
 import { recover, generateDdl, resolveAdapter, MysqlClient } from "@fxri/opsbox"
