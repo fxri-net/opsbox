@@ -19,6 +19,7 @@ src/
 ├── about.ts            # 工具集描述（CLI 与帮助共用）
 ├── config.ts           # 三层配置加载与合并（全局 / 项目 / 本地）
 ├── config-status.ts    # config status 只读体检渲染
+├── date.ts             # 本地时间取值单一入口（本地时区口径）
 ├── errors.ts           # commander 解析错误中文化
 ├── git-ignore.ts       # git 探测：忽略 / 仓库根 / 已跟踪判定与路径归一
 ├── help.ts             # 帮助口径统一（中文化 + 父级清单对齐）

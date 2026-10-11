@@ -8,6 +8,7 @@
 //   Phase 4  运行中校验（表数 / CHECK TABLE / 逐库体积 / 行数抽样）
 import { existsSync } from "node:fs"
 import { basename, dirname, join, parse } from "node:path"
+import { folderStamp } from "../date"
 import { copyFile, copyTree, dirSize, ensureDir, formatSize, freeSpace, isDir, listDir, movePath } from "../platform"
 import type { PlatformAdapter } from "../platform"
 import { readTextFile } from "../read-text"
@@ -419,7 +420,7 @@ function printPlan(ctx: RecoverContext, plan: RecoverPlan): void {
 export async function recover(opts: RecoverOptions, adapter: PlatformAdapter): Promise<void> {
   const report = new Reporter()
   const client = new MysqlClient({ binDir: opts.binDir, user: opts.user, password: opts.password })
-  const runDir = join(opts.workDir, `run-${timestamp()}`)
+  const runDir = join(opts.workDir, `run-${folderStamp()}`)
   const reportPath = join(runDir, "restore-report.txt")
   console.log(`旧库恢复  运行目录：${runDir}`)
 
@@ -479,16 +480,6 @@ function root(p: string): string {
  */
 function sameVolume(a: string, b: string): boolean {
   return root(a) === root(b)
-}
-
-/**
- * 生成 yyyyMMdd-HHmmss 时间戳。
- * @return 时间戳文本
- */
-function timestamp(): string {
-  const d = new Date()
-  const pad = (n: number): string => String(n).padStart(2, "0")
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
 }
 
 /**

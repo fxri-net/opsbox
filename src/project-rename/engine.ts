@@ -5,6 +5,7 @@
 import { existsSync, statSync } from "node:fs"
 import { createInterface } from "node:readline/promises"
 import { dirname, join, resolve } from "node:path"
+import { folderStamp } from "../date"
 import { copyFile, ensureDir, isDir, listDir, movePath } from "../platform"
 import { readTextFile } from "../read-text"
 import { writeFileAtomic } from "../write-atomic"
@@ -184,7 +185,7 @@ async function firstPass(opts: RenameOptions): Promise<RenameResult> {
   }
   if (!opts.yes) await confirm(`即将改名 ${plan.oldPath} → ${plan.newPath}，并迁移上述 ${plan.artifacts.length} 个载体，是否继续？`)
 
-  const backupDir = opts.backupDir ?? join(plan.oldPath, BACKUP_REL, timestamp())
+  const backupDir = opts.backupDir ?? join(plan.oldPath, BACKUP_REL, folderStamp())
   if (!opts.noBackup) ensureDir(backupDir)
 
   const entries: ResumeEntry[] = []
@@ -381,14 +382,4 @@ function summarize(plan: MigrationPlan, dryRun: boolean, migrated: number, patch
     migrated,
     patched
   }
-}
-
-/**
- * 生成 yyyyMMdd-HHmmss 形式的时间戳。
- * @return 时间戳文本
- */
-function timestamp(): string {
-  const now = new Date()
-  const pad = (value: number): string => String(value).padStart(2, "0")
-  return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
 }

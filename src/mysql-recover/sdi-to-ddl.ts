@@ -7,6 +7,7 @@
 import { execFileSync } from "node:child_process"
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs"
 import { basename, dirname, join, posix } from "node:path"
+import { localDateTime } from "../date"
 import { readTextFile, stripBom } from "../read-text"
 import { writeFileAtomic } from "../write-atomic"
 import { toJsonText } from "../json-output"
@@ -377,13 +378,8 @@ function writeOutputs(tables: TableEntry[], opts: DdlOptions, warnings: string[]
     .join("\n")
   writeFileSync(join(ddlRoot, "_databases.sql"), dbSql + "\n", "utf8")
 
-  // 生成时刻按运行环境本地时区取墙上时间，便于使用者直接对读（对齐 toolkit 本地日期口径，不落 UTC ISO）
-  const now = new Date()
-  const pad = (n: number): string => String(n).padStart(2, "0")
-  const generatedAt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
-
   const manifest: Manifest = {
-    generatedAt,
+    generatedAt: localDateTime(),
     dataDir,
     libs,
     tableCount: manifestTables.length,
