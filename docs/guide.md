@@ -175,22 +175,10 @@ OPSBOX_NO_UPDATE_CHECK=1 opsbox --help    # 环境变量
 
 或在配置里写 `"updateCheck": { "enabled": false }`（关闭后不派生后台进程、不发起任何网络请求）。
 
-## 验收门禁
-
-**单一门禁真源**：`pnpm verify` 定义全部验收步骤并按序执行，本地与 CI 共用同一份清单。
-
-```
-安装依赖（frozen 锁文件）→ 类型检查 → 静态检查（冷缓存）→ 单元测试 → 覆盖率
-  → 构建 → CLI 冒烟（各命令 --help + config status）
-```
-
-时区约定：合成数据步骤钉 `TZ=UTC`。冒烟步骤 `config status` 钉 `OPSBOX_NO_UPDATE_CHECK=1`，保证门禁无外部依赖、可重复。
-
 ## 环境与版本兼容
 
 - 环境要求 Node.js >= 20.19.0（`engines.node` 同源，见 `package.json`）
 - 依赖：`commander`（命令树）、`node-sqlite3-wasm`（`project-rename` 的 SQLite 改写经纯 WASM 驱动，无需原生构建）
-- 构建：`tsup` 产出 cjs + esm 双格式与 dts；`node-sqlite3-wasm` 须列入 `external` 保留自身路径解析
 
 ## 相关页面
 
