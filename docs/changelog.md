@@ -6,6 +6,14 @@ outline: [2, 2]
 
 > 完整变更历史以随包发布的 CHANGELOG.md 为准，本页由 `pnpm sync:changelog-doc` 从根 CHANGELOG.md 自动同步，请勿手改。
 
+## 0.1.1
+
+> 2026-10-11 发布
+
+### 🐛 问题修复
+
+- 修正用户文档与 README 的安装形态口径：以 npm 发布形态（全局安装为主，项目 devDependency / 临时执行为备选）替换原「本地构建」描述，命令示例统一为 `opsbox <command>`。
+
 ## 0.1.0
 
 > 2026-10-11 发布

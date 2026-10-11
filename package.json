@@ -1,6 +1,6 @@
 {
   "name": "@fxri/opsbox",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "跨平台运维工具集：以「能力」为单位组织，所有能力默认全平台支持。",
   "author": {
     "name": "唐启云",
