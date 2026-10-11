@@ -44,8 +44,6 @@
 | [配置参考](./docs/config.md) | 查 `.opsboxrc.json` 字段（全局 / 项目 / 本地三层） |
 | [更新日志](./CHANGELOG.md) | 查各版本变更内容 |
 | [FAQ](./docs/faq.md) | 遇到问题先来这里找 |
-| [推荐 AI 全局规则](./docs/ai-rules.md) | 想让 AI 助手按同一套纪律协作 |
-| [推荐提交信息规则](./docs/commit-rules.md) | 想让 AI 按统一格式写 git 提交信息 |
 | [完整文档站](https://fxri-net.github.io/opsbox/) | 在线阅读体验 |
 
 ## 📦 安装
