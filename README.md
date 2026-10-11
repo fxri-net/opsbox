@@ -2,7 +2,7 @@
   <img src="./docs/public/logo.png" width="128" alt="方弦运维工具箱">
 </p>
 
-# 方弦运维工具箱（opsbox）
+# 方弦运维工具箱
 
 [![CI](https://github.com/fxri-net/opsbox/actions/workflows/ci.yml/badge.svg)](https://github.com/fxri-net/opsbox/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@fxri/opsbox)](https://www.npmjs.com/package/@fxri/opsbox)
@@ -19,8 +19,8 @@
 
 | 能力 | 适用场景 | 命令 |
 | --- | --- | --- |
-| MySQL 库恢复（mysql-recover） | 重装 MySQL 后，从遗留的数据目录还原库结构与数据 | `opsbox mysql-recover` |
-| 项目目录改名（project-rename） | 目录改名后，迁移各宿主中跟随目录名的关联状态（⚠️ 需先关闭目标宿主） | `opsbox project-rename <旧路径> <新路径>` |
+| MySQL 库恢复 | 重装 MySQL 后，从遗留的数据目录还原库结构与数据 | `opsbox mysql-recover` |
+| 项目目录改名 | 目录改名后，迁移各宿主中跟随目录名的关联状态（⚠️ 需先关闭目标宿主） | `opsbox project-rename <旧路径> <新路径>` |
 
 ## 🖥️ 平台支持
 

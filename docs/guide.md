@@ -41,7 +41,7 @@ src/
 - **命令执行一律以 argv 数组传参、不经 shell**，避免 win32 下含空格参数被 shell 拆断
 - **文件系统操作**（拷贝 / 移动 / 体积 / 可用空间等）由纯 Node 实现，各端行为一致；适配层只保留服务控制与权限复位两类平台特有操作
 
-## MySQL 库恢复（mysql-recover）
+## MySQL 库恢复
 
 分两阶段：`ddl` 只读数据目录、不触碰实例；`restore` 依产物把孤儿库文件重新挂回实例。
 
@@ -87,7 +87,7 @@ opsbox mysql-recover restore --work .opsbox --user root
 - `--password` 之外支持交互式掩码输入；非交互终端拒绝读取，避免半截输入造成误连
 - `restore` 缺失 `manifest.json` 产物时以明确中文错误终止，提示先执行 `ddl`
 
-## 项目目录改名（project-rename）
+## 项目目录改名
 
 把项目目录改名，并把各宿主（IDE / 编辑器）中**跟随目录名**的关联状态一并迁移到新路径。项目目录内的内容不动，由改名动作自身承载。
 
