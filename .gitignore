@@ -8,6 +8,7 @@ coverage
 .eslintcache
 docs/.vitepress/dist
 docs/.vitepress/cache
+docs/.vitepress/.temp
 *.tgz
 .archive.lock
 .opsboxrc.local.json
