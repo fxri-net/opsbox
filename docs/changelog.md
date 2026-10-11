@@ -6,6 +6,15 @@ outline: [2, 2]
 
 > 完整变更历史以随包发布的 CHANGELOG.md 为准，本页由 `pnpm sync:changelog-doc` 从根 CHANGELOG.md 自动同步，请勿手改。
 
+## 0.1.2
+
+> 2026-10-11 发布
+
+### 🔧 功能调整
+
+- `mysql-recover ddl` 产物 `manifest.json` 的 `generatedAt` 由 UTC ISO 时刻（如 `2026-10-11T04:11:00.000Z`）改为运行环境本地时区的 `YYYY-MM-DD HH:mm:ss`，便于使用者直接对读，不再需要按 8 小时时差换算；该字段无下游代码解析，`restore` 行为不受影响
+- 随包分发的 `SPEC.md` 首行「规范更新时间」锚点由仅日期 `YYYY-MM-DD` 改为精确到分 `YYYY-MM-DD HH:mm`（24 小时制、本机时区）
+
 ## 0.1.1
 
 > 2026-10-11 发布
