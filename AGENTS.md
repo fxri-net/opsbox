@@ -68,3 +68,9 @@
 - CLI：执行 `opsbox` 命令时用 `node dist/cli.js` 直调本仓库产物；修改 `src/` 后先 `pnpm build`（或 `pnpm dev` 一键开发构建并运行）再执行，保证验证的是最新代码；
 - 常用开发命令：`pnpm verify`（唯一验收门禁，见上「质量门」）、`pnpm build`（生产构建，tsup 产出 cjs + esm 双格式与 dts）、`pnpm dev`（开发构建并运行 CLI）、`pnpm test`（单元测试，vitest）；
 - 规范与技能：结构与契约读仓库内 `SPEC.md`，协作规范读 `.tasks/conventions/`；任务区体检与任务管理技能由全局 `@fxri/toolkit` 提供，仓库内不重复维护。
+
+<!-- toolkit-conventions-pointer:start -->
+## 项目协作规范
+
+本项目沉淀的协作规范以项目级技能目录下的 `toolkit-conventions/SKILL.md` 为入口（由 `toolkit init` 生成，多 agent 混用团队在各已存在的技能目录各有一份），条文以任务区 `conventions/index.md` 及各分册的单一事实源为准；需要查阅或遵循本项目规范时先读该入口。
+<!-- toolkit-conventions-pointer:end -->
