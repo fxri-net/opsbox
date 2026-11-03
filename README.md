@@ -6,8 +6,9 @@
 
 [![CI](https://github.com/fxri-net/opsbox/actions/workflows/ci.yml/badge.svg)](https://github.com/fxri-net/opsbox/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@fxri/opsbox)](https://www.npmjs.com/package/@fxri/opsbox)
-[![Node](https://img.shields.io/badge/node-%E2%89%A520-brightgreen)](./docs/getting-started.md)
+[![Node](https://img.shields.io/badge/node-%E2%89%A520.19-brightgreen)](./docs/getting-started.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+[![文档站](https://img.shields.io/badge/docs-fxri--net.github.io%2Fopsbox-blueviolet)](https://fxri-net.github.io/opsbox/)
 
 跨平台运维工具集：以「能力」为单位组织，所有能力默认全平台支持。
 
