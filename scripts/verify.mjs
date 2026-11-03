@@ -52,6 +52,7 @@ const steps = [
   { label: "构建", command: "pnpm", args: ["build"] },
   // 全局 toolkit 未安装时该步打印跳过，不阻断远程 CI
   { label: "更新日志镜像（CHANGELOG → docs）", args: ["scripts/check-changelog-doc.mjs"] },
+  { label: "文档站主题一致（toolkit docs theme --check）", args: ["scripts/check-docs-theme.mjs"] },
   // 文档站构建：VitePress 构建即做内部死链检查，文档改错会让门禁红，与 CI 同源
   { label: "文档站构建（死链检查）", command: "pnpm", args: ["docs:build"], skip: skipDocs },
   { label: "CLI 冒烟 --help", args: ["dist/cli.js", "--help"] },
