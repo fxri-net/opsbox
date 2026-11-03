@@ -42,7 +42,7 @@
 | [CLI 参考](./docs/cli.md) | 查命令、参数、默认值、退出码 |
 | [API 参考](./docs/api.md) | 作为库引入 Node 项目 |
 | [配置参考](./docs/config.md) | 查 `.opsboxrc.json` 字段（全局 / 项目 / 本地三层） |
-| [更新日志](./CHANGELOG.md) | 查各版本变更内容 |
+| [更新日志](./docs/changelog.md) | 查各版本变更内容 |
 | [FAQ](./docs/faq.md) | 遇到问题先来这里找 |
 | [完整文档站](https://fxri-net.github.io/opsbox/) | 在线阅读体验 |
 
