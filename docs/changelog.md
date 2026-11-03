@@ -6,6 +6,15 @@ outline: [2, 2]
 
 > 完整变更历史以根 `CHANGELOG.md` 为准，本页由 `toolkit changelog doc` 自动同步，请勿手改。
 
+## 0.1.7
+
+> 2026-11-03 发布
+
+### ⚡ 优化改进
+
+- 统一 package.json 元数据（author、repository、homepage、keywords 与字段顺序）
+- toolkit 相关脚本改为显式探测全局命令，缺失时跳过
+
 ## 0.1.6
 
 > 2026-11-03 发布
