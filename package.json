@@ -2,16 +2,20 @@
   "name": "@fxri/opsbox",
   "version": "0.1.6",
   "description": "跨平台运维工具集：以「能力」为单位组织，所有能力默认全平台支持。",
+  "license": "MIT",
   "author": {
     "name": "唐启云",
     "email": "tqy@fxri.net",
     "url": "https://fxri.net:444/"
   },
-  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fxri-net/opsbox.git"
+    "url": "git+https://github.com/fxri-net/opsbox.git"
   },
+  "bugs": {
+    "url": "https://github.com/fxri-net/opsbox/issues"
+  },
+  "homepage": "https://fxri-net.github.io/opsbox/",
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
@@ -51,7 +55,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "verify": "node scripts/verify.mjs",
-    "sync:changelog-doc": "toolkit changelog doc",
+    "changeset": "node scripts/toolkit.mjs changelog",
+    "changelog:version": "node scripts/toolkit.mjs changelog version",
+    "sync:changelog-doc": "node scripts/toolkit.mjs changelog doc",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
@@ -62,8 +68,13 @@
     "ops",
     "devops",
     "cross-platform",
-    "mysql"
+    "mysql",
+    "fxri"
   ],
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "packageManager": "pnpm@10.34.4",
   "dependencies": {
     "commander": "^14.0.3",
     "node-sqlite3-wasm": "^0.8.60"
@@ -79,10 +90,6 @@
     "typescript-eslint": "^8.69.0",
     "vitepress": "^1.6.4",
     "vitest": "^4.1.11"
-  },
-  "packageManager": "pnpm@10.34.4",
-  "engines": {
-    "node": ">=20.19.0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
