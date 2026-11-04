@@ -91,6 +91,14 @@ function needInstall() {
 const installNeeded = needInstall()
 const docsNeeded = needDocsBuild()
 
+// 安装必须先于一切检查：CI 全新 runner 没有 node_modules，先跑 tsc / eslint 会直接找不到命令
+const installStep = {
+  label: "安装依赖（frozen 锁文件）",
+  command: "pnpm",
+  args: ["install", "--frozen-lockfile"],
+  skip: installNeeded ? "" : "lockfile 未变化",
+}
+
 // 互不依赖、可并行的前置检查：类型 / 静态检查 / 日志镜像核验 / 文档主题核验，四者都不读 dist、不写工作区
 const parallelSteps = [
   { label: "类型检查", command: "pnpm", args: ["typecheck"] },
@@ -104,7 +112,6 @@ const parallelSteps = [
 // 时区（TZ）钉死：合成数据步骤（单元测试 / 覆盖率门槛）钉 TZ=UTC——被测数据由测试当场构造、与运行环境时区无关，
 // 固定时区可避免「本地绿、CI 红」的时区耦合回归
 const steps = [
-  { label: "安装依赖（frozen 锁文件）", command: "pnpm", args: ["install", "--frozen-lockfile"], fatal: true, skip: installNeeded ? "" : "lockfile 未变化" },
   {
     label: skipCoverage ? "单元测试（不含覆盖率）" : "单元测试 + 覆盖率门槛",
     command: "pnpm",
@@ -146,6 +153,19 @@ function runCaptured(step) {
     child.on("error", (err) => resolve({ step, code: 1, stdout, stderr: `${stderr}${err}` }))
     child.on("close", (code) => resolve({ step, code: code ?? 1, stdout, stderr }))
   })
+}
+
+// 安装失败即中止：没有依赖时后续步骤的失败全是噪音，不进入并行组
+if (installStep.skip) {
+  console.log(`\n⊘ ${installStep.label}（${installStep.skip}，跳过）`)
+} else {
+  console.log(`\n▶ ${installStep.label}`)
+  executed += 1
+  const installed = spawnSync(installStep.command, installStep.args, { cwd: root, stdio: "inherit", shell: isWindows && installStep.command !== process.execPath })
+  if (installed.status !== 0) {
+    console.error(`\n✖ 门禁未通过：1 步失败\n  - ${installStep.label}`)
+    process.exit(1)
+  }
 }
 
 console.log(`\n▶ 并行检查（${parallelSteps.length} 项：${parallelSteps.map((s) => s.label).join(" / ")}）`)
