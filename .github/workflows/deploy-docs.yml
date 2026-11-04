@@ -5,6 +5,8 @@ name: Deploy Docs
 on:
   push:
     branches: [main]
+  # 手动触发：平台丢事件时可按需重新部署文档站
+  workflow_dispatch:
 
 permissions:
   contents: read

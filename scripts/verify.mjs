@@ -1,5 +1,5 @@
-import { spawnSync } from "node:child_process"
-import { readFileSync } from "node:fs"
+import { spawn, spawnSync } from "node:child_process"
+import { readFileSync, statSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -12,6 +12,15 @@ const isWindows = process.platform === "win32"
 const flags = new Set(process.argv.slice(2))
 const skipCoverage = flags.has("--skip-coverage")
 const skipDocs = flags.has("--skip-docs")
+// --full 强制全量：忽略本地改动面、缓存与安装判断，等价于 CI 口径
+const full = flags.has("--full")
+// CI 环境一律全量：本地裁剪只服务于开发效率，不能让 CI 漏检安装与死链
+const ciValue = process.env.CI ?? ""
+const isCI = ciValue !== "" && ciValue !== "0" && ciValue.toLowerCase() !== "false"
+
+// 文档站构建触发面：站点输入含文档正文与内链，站点配置直接引用源码侧信息，依赖清单决定构建工具版本
+const DOC_TOUCH_PREFIXES = ["docs/", "src/"]
+const DOC_TOUCH_FILES = new Set(["README.md", "package.json", "pnpm-lock.yaml"])
 
 /**
  * 读取文本文件并去除首尾空白。
@@ -39,22 +48,73 @@ function reportToolchain() {
   }
 }
 
-// 步骤清单即门禁定义：顺序有依赖（build 先于 CLI 冒烟），增删步骤只改这里
-// 时区（TZ）钉死：合成数据步骤（单元测试 / 覆盖率门槛）钉 TZ=UTC——被测数据由测试当场构造、与运行环境时区无关，
-// 固定时区可避免「本地绿、CI 红」的时区耦合回归
-const steps = [
-  { label: "安装依赖（frozen 锁文件）", command: "pnpm", args: ["install", "--frozen-lockfile"], fatal: true },
+/**
+ * git 只读调用。
+ * @param {string[]} args git 参数
+ * @return {string[] | null} 输出行；失败返回 null（调用方按「可能触及」保守处理）
+ */
+function gitLines(args) {
+  const result = spawnSync("git", args, { cwd: root, encoding: "utf8" })
+  if (result.status !== 0) return null
+  return (result.stdout ?? "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
+}
+
+/**
+ * 本次是否需要构建文档站。
+ * @return {boolean} true 表示执行 docs:build
+ */
+function needDocsBuild() {
+  if (isCI || full) return true
+  const tracked = gitLines(["diff", "--name-only", "HEAD"])
+  const untracked = gitLines(["ls-files", "--others", "--exclude-standard"])
+  if (tracked === null || untracked === null) return true
+  for (const file of [...tracked, ...untracked]) {
+    if (DOC_TOUCH_FILES.has(file)) return true
+    if (DOC_TOUCH_PREFIXES.some((prefix) => file.startsWith(prefix))) return true
+  }
+  return false
+}
+
+/**
+ * 依赖是否需要重装：lockfile 比已安装快照新，或安装目录缺失。
+ * @return {boolean} true 表示执行 pnpm install
+ */
+function needInstall() {
+  if (isCI || full) return true
+  try {
+    return statSync(join(root, "pnpm-lock.yaml")).mtimeMs > statSync(join(root, "node_modules", ".pnpm", "lock.yaml")).mtimeMs
+  } catch {
+    return true
+  }
+}
+
+const installNeeded = needInstall()
+const docsNeeded = needDocsBuild()
+
+// 互不依赖、可并行的前置检查：类型 / 静态检查 / 日志镜像核验 / 文档主题核验，四者都不读 dist、不写工作区
+const parallelSteps = [
   { label: "类型检查", command: "pnpm", args: ["typecheck"] },
-  // 冷缓存：本地 eslint --cache 会跳过未变文件，CI 每次全量跑，门禁必须与 CI 对齐才可比
-  { label: "静态检查（冷缓存）", command: "pnpm", args: ["exec", "eslint", ".", "--no-cache"] },
-  { label: "单元测试", command: "pnpm", args: ["test"], env: { TZ: "UTC" } },
-  { label: "覆盖率门槛", command: "pnpm", args: ["test:coverage"], skip: skipCoverage, env: { TZ: "UTC" } },
-  { label: "构建", command: "pnpm", args: ["build"] },
+  // eslint 默认缓存加速本地重复运行；CI 与 --full 走冷缓存，与 CI 口径一致才可比
+  { label: isCI || full ? "静态检查（冷缓存）" : "静态检查", command: "pnpm", args: ["exec", "eslint", ".", ...(isCI || full ? ["--no-cache"] : ["--cache"])] },
   // 全局 toolkit 未安装时该步打印跳过，不阻断远程 CI
   { label: "更新日志镜像（CHANGELOG → docs）", args: ["scripts/check-changelog-doc.mjs"] },
   { label: "文档站主题一致（toolkit docs theme --check）", args: ["scripts/check-docs-theme.mjs"] },
+]
+// 串行步骤：单测与 build 之后依次执行，CLI 冒烟依赖 dist 产物
+// 时区（TZ）钉死：合成数据步骤（单元测试 / 覆盖率门槛）钉 TZ=UTC——被测数据由测试当场构造、与运行环境时区无关，
+// 固定时区可避免「本地绿、CI 红」的时区耦合回归
+const steps = [
+  { label: "安装依赖（frozen 锁文件）", command: "pnpm", args: ["install", "--frozen-lockfile"], fatal: true, skip: installNeeded ? "" : "lockfile 未变化" },
+  {
+    label: skipCoverage ? "单元测试（不含覆盖率）" : "单元测试 + 覆盖率门槛",
+    command: "pnpm",
+    // 覆盖率与单测合并为一次运行：同一批测试不再跑两遍，检查项与阈值判定不变
+    args: ["exec", "vitest", "run", ...(skipCoverage ? [] : ["--coverage"])],
+    env: { TZ: "UTC" },
+  },
+  { label: "构建", command: "pnpm", args: ["build"] },
   // 文档站构建：VitePress 构建即做内部死链检查，文档改错会让门禁红，与 CI 同源
-  { label: "文档站构建（死链检查）", command: "pnpm", args: ["docs:build"], skip: skipDocs },
+  { label: "文档站构建（死链检查）", command: "pnpm", args: ["docs:build"], skip: skipDocs ? "--skip-docs" : docsNeeded ? "" : "未触及 docs/、src/、README.md、依赖清单" },
   { label: "CLI 冒烟 --help", args: ["dist/cli.js", "--help"] },
   { label: "CLI 冒烟 mysql-recover --help", args: ["dist/cli.js", "mysql-recover", "--help"] },
   { label: "CLI 冒烟 mysql-recover ddl --help", args: ["dist/cli.js", "mysql-recover", "ddl", "--help"] },
@@ -70,8 +130,38 @@ reportToolchain()
 const failures = []
 let executed = 0
 
+/**
+ * 运行单个步骤并捕获输出，用于并行组（并发时继承 stdio 会互相穿插）。
+ * @param {{label: string, command?: string, args: string[], env?: Record<string, string>}} step 步骤定义
+ * @return {Promise<{step: object, code: number, stdout: string, stderr: string}>} 步骤与退出码、输出
+ */
+function runCaptured(step) {
+  return new Promise((resolve) => {
+    const command = step.command ?? process.execPath
+    const child = spawn(command, step.args, { cwd: root, shell: isWindows && command !== process.execPath, env: { ...process.env, ...step.env } })
+    let stdout = ""
+    let stderr = ""
+    child.stdout.on("data", (chunk) => (stdout += chunk))
+    child.stderr.on("data", (chunk) => (stderr += chunk))
+    child.on("error", (err) => resolve({ step, code: 1, stdout, stderr: `${stderr}${err}` }))
+    child.on("close", (code) => resolve({ step, code: code ?? 1, stdout, stderr }))
+  })
+}
+
+console.log(`\n▶ 并行检查（${parallelSteps.length} 项：${parallelSteps.map((s) => s.label).join(" / ")}）`)
+executed += parallelSteps.length
+for (const { step, code, stdout, stderr } of await Promise.all(parallelSteps.map(runCaptured))) {
+  console.log(`\n—— ${step.label} ——`)
+  if (stdout) process.stdout.write(stdout)
+  if (stderr) process.stderr.write(stderr)
+  if (code !== 0) failures.push(step.label)
+}
+
 for (const step of steps) {
-  if (step.skip) continue
+  if (step.skip) {
+    console.log(`\n⊘ ${step.label}（${step.skip}，跳过）`)
+    continue
+  }
   console.log(`\n▶ ${step.label}`)
   executed += 1
   // pnpm / toolkit 在 Windows 上是 .cmd，需经 shell 调用；node 用 process.execPath 直呼，避免路径含空格时被 shell 拆断
