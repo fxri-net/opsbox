@@ -37,14 +37,14 @@
 
 | 文档 | 适合谁 |
 | --- | --- |
-| [新手指南](./docs/getting-started.md) | 第一次接触，想 30 秒跑起来 |
+| [快速开始](./docs/getting-started.md) | 第一次接触，想 30 秒跑起来 |
 | [操作手册](./docs/handbook.md) | 日常照着做：每个能力该说什么、做什么 |
 | [完整攻略](./docs/guide.md) | 了解架构：能力组织、平台适配层、三层配置、机器可读输出 |
 | [CLI 参考](./docs/cli.md) | 查命令、参数、默认值、退出码 |
 | [API 参考](./docs/api.md) | 作为库引入 Node 项目 |
 | [配置参考](./docs/config.md) | 查 `.opsboxrc.json` 字段（全局 / 项目 / 本地三层） |
 | [更新日志](./docs/changelog.md) | 查各版本变更内容 |
-| [FAQ](./docs/faq.md) | 遇到问题先来这里找 |
+| [常见问题](./docs/faq.md) | 遇到问题先来这里找 |
 | [完整文档站](https://fxri-net.github.io/opsbox/) | 在线阅读体验 |
 
 ## 📦 安装
@@ -57,7 +57,7 @@ pnpm add -D @fxri/opsbox        # 项目 devDependency（推荐团队项目）
 pnpm dlx @fxri/opsbox --help    # 不安装、临时执行
 ```
 
-方式取舍与 yarn / bun 等价命令见[新手指南 · 安装](./docs/getting-started.md#安装)。
+方式取舍与 yarn / bun 等价命令见[快速开始 · 安装](./docs/getting-started.md#安装)。
 
 ## 🚀 快速上手
 

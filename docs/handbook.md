@@ -8,7 +8,7 @@
 
 | 步骤 | 该做什么 | 会发生什么 |
 | --- | --- | --- |
-| 1 安装 | `pnpm i -g @fxri/opsbox`（推荐；项目 devDependency 见[新手指南 · 安装](./getting-started#安装)） | 全局可用 `opsbox` 命令 |
+| 1 安装 | `pnpm i -g @fxri/opsbox`（推荐；项目 devDependency 见[快速开始 · 安装](./getting-started#安装)） | 全局可用 `opsbox` 命令 |
 | 2 看命令树 | `opsbox --help` | 列出全部能力与每行的简单说明 |
 | 3 看能力用法 | `opsbox <能力> --help` | 列出该能力的子命令、选项与默认值 |
 | 4 预演再执行 | 先加 `--dry-run`，确认无误后去掉 | `--dry-run` 只做前置校验并打印计划，不落盘 |
@@ -102,7 +102,7 @@ opsbox config status --cwd <path>    # 指定向上查找的起始目录
 
 ## 相关页面
 
-- 快速上手 → [新手指南](./getting-started)
+- 快速上手 → [快速开始](./getting-started)
 - 架构与完整流程 → [完整攻略](./guide)
 - 查命令参数 → [CLI 参考](./cli)
-- 遇到问题 → [FAQ](./faq)
+- 遇到问题 → [常见问题](./faq)

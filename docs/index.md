@@ -74,7 +74,7 @@ opsbox mysql-recover restore --work .opsbox --user root
 
 `restore` 缺省交互式输入口令（可用 `--password` 传入）；`--dry-run` 仅做前置校验并打印执行计划。
 
-详细步骤见[新手指南](./getting-started)。
+详细步骤见[快速开始](./getting-started)。
 
 ## 解决什么痛点
 
@@ -91,14 +91,14 @@ opsbox mysql-recover restore --work .opsbox --user root
 
 | 文档 | 适合谁 |
 | --- | --- |
-| [新手指南](./getting-started) | 第一次接触，想快速跑起来 |
+| [快速开始](./getting-started) | 第一次接触，想快速跑起来 |
 | [操作手册](./handbook) | 日常照着做：每个能力该说什么、做什么 |
 | [完整攻略](./guide) | 了解架构：能力组织、平台适配层、三层配置、机器可读输出 |
 | [CLI 参考](./cli) | 查命令、参数、默认值、退出码 |
 | [API 参考](./api) | 作为库引入 Node 项目，写脚本或二次开发 |
 | [配置参考](./config) | 查 `.opsboxrc.json` 字段 |
 | [更新日志](./changelog) | 查各版本变更内容 |
-| [FAQ](./faq) | 遇到问题先来这里找 |
+| [常见问题](./faq) | 遇到问题先来这里找 |
 
 ## 环境要求
 

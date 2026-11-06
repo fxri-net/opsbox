@@ -26,7 +26,7 @@ Commands:
   help [command]                                  显示帮助
 
 文档站：
-  新手指南 https://fxri-net.github.io/opsbox/getting-started
+  快速开始 https://fxri-net.github.io/opsbox/getting-started
   完整攻略 https://fxri-net.github.io/opsbox/guide
   全部文档 https://fxri-net.github.io/opsbox/
 ```

@@ -1,10 +1,10 @@
-# FAQ
+# 常见问题
 
 > 目标读者：遇到疑问来查答案的用户。按主题分组，先答结论再给细节。
 
 ## 解决什么问题
 
-新手指南讲最短路径、完整攻略讲全流程，但真实使用中的疑问是碎片化的——本篇按「问题 → 答案」直给。没找到答案可去 [GitHub Issues](https://github.com/fxri-net/opsbox/issues) 提问。
+快速开始讲最短路径、完整攻略讲全流程，但真实使用中的疑问是碎片化的——本篇按「问题 → 答案」直给。没找到答案可去 [GitHub Issues](https://github.com/fxri-net/opsbox/issues) 提问。
 
 ## 安装与环境
 
@@ -18,7 +18,7 @@ pnpm add -D @fxri/opsbox        # 项目 devDependency（推荐团队项目）
 pnpm dlx @fxri/opsbox --help    # 不安装、临时执行
 ```
 
-安装后 `opsbox --help` 可查看命令树；三种方式的取舍与 npm / yarn / bun 等价命令见[新手指南 · 安装](./getting-started#安装)。
+安装后 `opsbox --help` 可查看命令树；三种方式的取舍与 npm / yarn / bun 等价命令见[快速开始 · 安装](./getting-started#安装)。
 
 ### 支持哪些平台？
 
@@ -115,7 +115,7 @@ pnpm add -D @fxri/opsbox@latest        # 项目 devDependency
 
 ## 相关页面
 
-- [新手指南](./getting-started)：安装与最短上手路径
+- [快速开始](./getting-started)：安装与最短上手路径
 - [操作手册](./handbook)：每个能力该说什么、做什么
 - [完整攻略](./guide)：全流程细节
 - [CLI 参考](./cli)：命令字典
