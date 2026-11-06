@@ -123,6 +123,8 @@ const steps = [
   { label: "构建", command: "pnpm", args: ["build"] },
   // 文档站构建：VitePress 构建即做内部死链检查，文档改错会让门禁红，与 CI 同源
   { label: "文档站构建（死链检查）", command: "pnpm", args: ["docs:build"], skip: skipDocs ? "--skip-docs" : docsNeeded ? "" : "未触及 docs/、src/、README.md、依赖清单" },
+  // 产物断言依赖上一步的 dist，跳过构建时一并跳过
+  { label: "文档站产物（404 排除站点地图与搜索索引）", args: ["scripts/check-docs-dist.mjs"], skip: skipDocs ? "--skip-docs" : docsNeeded ? "" : "未触及 docs/、src/、README.md、依赖清单" },
   { label: "CLI 冒烟 --help", args: ["dist/cli.js", "--help"] },
   { label: "CLI 冒烟 mysql-recover --help", args: ["dist/cli.js", "mysql-recover", "--help"] },
   { label: "CLI 冒烟 mysql-recover ddl --help", args: ["dist/cli.js", "mysql-recover", "ddl", "--help"] },

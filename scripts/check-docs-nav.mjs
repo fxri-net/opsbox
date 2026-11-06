@@ -1,6 +1,6 @@
-// 文档站导航规范校验：标准来源 playbook fxri-docs-profile 0.1.0
-// 规则：顶栏不超过 5 项、首项快速开始、末项帮助、帮助含常见问题与更新日志、一级项与侧栏分组名不超过 4 个汉字、404 页存在
-// 体量告警：单页超过 300 行（排除 changelog.md）只提示不阻断
+// 文档站导航规范校验：标准来源 playbook fxri-docs-profile 0.1.3
+// 规则：顶栏不超过 5 项、首项快速开始、末项帮助、帮助含常见问题与更新日志、一级项与侧栏分组名不超过 4 个汉字、404 页存在且不进站点地图与站内搜索
+// 体量告警：单页超过 300 行（排除 changelog.md）只提示不阻断；产物断言见 check-docs-dist.mjs
 import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { dirname, join, relative } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -68,7 +68,20 @@ for (const name of [...nav, ...sidebar]) {
   if (hanCount(name) > 4) problems.push(`分组名「${name}」超过 4 个汉字`)
 }
 
-if (!existsSync(join(root, "docs", "404.md"))) problems.push("缺少 docs/404.md 兜底页")
+// 404 页须退出站点地图与站内搜索：此处只做静态断言，产物断言见 check-docs-dist.mjs
+const notFoundPage = join(root, "docs", "404.md")
+if (!existsSync(notFoundPage)) {
+  problems.push("缺少 docs/404.md 兜底页")
+} else {
+  // 行尾归一后再取 frontmatter：Windows 检出为 CRLF 时直接匹配会失效
+  const head = /^---\n([\s\S]*?)\n---/.exec(readFileSync(notFoundPage, "utf8").replace(/\r\n/g, "\n"))
+  if (!head || !/(^|\n)\s*search:\s*false\s*($|\n)/.test(head[1])) {
+    problems.push("docs/404.md 的 frontmatter 缺少 `search: false`，404 页会进入站内搜索索引")
+  }
+}
+if (!/sitemap:\s*\{[\s\S]*?transformItems/.test(config)) {
+  problems.push("站点配置的 sitemap 缺少 transformItems，404 页会进入站点地图")
+}
 
 // 页面体量告警：只提示不阻断，提醒后续拆分
 function walk(dir, found = []) {
