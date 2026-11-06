@@ -26,15 +26,22 @@ if (!existsSync(sitemapFile)) {
 }
 
 // 本地搜索索引按页分块，文件名形如 @localSearchIndexroot.<hash>.js
+// 404 页标题从源文件读取：页面改名后断言跟随，避免硬编码标题导致检查空转
+const notFoundSource = join(root, "docs", "404.md")
+const notFoundTitle = !existsSync(notFoundSource)
+  ? ""
+  : (/^#\s+(.+)$/m.exec(readFileSync(notFoundSource, "utf8").replace(/\r\n/g, "\n"))?.[1] ?? "").trim()
 const chunksDir = join(dist, "assets", "chunks")
 const indexFiles = existsSync(chunksDir) ? readdirSync(chunksDir).filter((name) => name.includes("localSearchIndex")) : []
-if (indexFiles.length === 0) {
+if (!notFoundTitle) {
+  problems.push("docs/404.md 缺失或没有一级标题，无法断言搜索索引")
+} else if (indexFiles.length === 0) {
   // 未启用本地搜索时该断言不适用，只提示不阻断
   console.warn("[docs] 未找到站内搜索索引分块，跳过 404 索引断言")
 } else {
   for (const name of indexFiles) {
-    if (readFileSync(join(chunksDir, name), "utf8").includes("页面不存在")) {
-      problems.push(`搜索索引 ${name} 含 404 页内容`)
+    if (readFileSync(join(chunksDir, name), "utf8").includes(notFoundTitle)) {
+      problems.push(`搜索索引 ${name} 含 404 页内容（${notFoundTitle}）`)
     }
   }
 }
