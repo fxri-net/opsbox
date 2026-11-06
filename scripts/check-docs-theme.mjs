@@ -8,5 +8,5 @@ if (probe.status !== 0) {
   process.exit(0)
 }
 
-const result = spawnSync("toolkit", ["docs", "theme", "--check"], { stdio: "inherit", shell: isWindows })
+const result = spawnSync("toolkit", ["docs", "theme", "check"], { stdio: "inherit", shell: isWindows })
 process.exit(result.status ?? 1)

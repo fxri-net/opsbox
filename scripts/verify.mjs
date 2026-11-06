@@ -106,7 +106,7 @@ const parallelSteps = [
   { label: isCI || full ? "静态检查（冷缓存）" : "静态检查", command: "pnpm", args: ["exec", "eslint", ".", ...(isCI || full ? ["--no-cache"] : ["--cache"])] },
   // 全局 toolkit 未安装时该步打印跳过，不阻断远程 CI
   { label: "更新日志镜像（CHANGELOG → docs）", args: ["scripts/check-changelog-doc.mjs"] },
-  { label: "文档站主题一致（toolkit docs theme --check）", args: ["scripts/check-docs-theme.mjs"] },
+  { label: "文档站主题一致（toolkit docs theme check）", args: ["scripts/check-docs-theme.mjs"] },
   { label: "文档站导航规范（分类 / 命名 / 顶栏）", args: ["scripts/check-docs-nav.mjs"] },
 ]
 // 串行步骤：单测与 build 之后依次执行，CLI 冒烟依赖 dist 产物
