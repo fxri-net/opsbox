@@ -106,8 +106,6 @@ const parallelSteps = [
   { label: isCI || full ? "静态检查（冷缓存）" : "静态检查", command: "pnpm", args: ["exec", "eslint", ".", ...(isCI || full ? ["--no-cache"] : ["--cache"])] },
   // 全局 toolkit 未安装时该步打印跳过，不阻断远程 CI
   { label: "更新日志镜像（CHANGELOG → docs）", args: ["scripts/check-changelog-doc.mjs"] },
-  { label: "文档站主题一致（toolkit docs theme check）", args: ["scripts/check-docs-theme.mjs"] },
-  { label: "文档站导航规范（分类 / 命名 / 顶栏）", args: ["scripts/check-docs-nav.mjs"] },
 ]
 // 串行步骤：单测与 build 之后依次执行，CLI 冒烟依赖 dist 产物
 // 时区（TZ）钉死：合成数据步骤（单元测试 / 覆盖率门槛）钉 TZ=UTC——被测数据由测试当场构造、与运行环境时区无关，
@@ -124,7 +122,10 @@ const steps = [
   // 文档站构建：VitePress 构建即做内部死链检查，文档改错会让门禁红，与 CI 同源
   { label: "文档站构建（死链检查）", command: "pnpm", args: ["docs:build"], skip: skipDocs ? "--skip-docs" : docsNeeded ? "" : "未触及 docs/、src/、README.md、依赖清单" },
   // 产物断言依赖上一步的 dist，跳过构建时一并跳过
-  { label: "文档站产物（404 排除站点地图与搜索索引）", args: ["scripts/check-docs-dist.mjs"], skip: skipDocs ? "--skip-docs" : docsNeeded ? "" : "未触及 docs/、src/、README.md、依赖清单" },
+  { label: "文档站产物（404 排除站点地图与搜索索引）", run: checkDocsDist, skip: skipDocs ? "--skip-docs" : docsNeeded ? "" : "未触及 docs/、src/、README.md、依赖清单" },
+  // 主题与导航校验只读源文件与模板，不依赖构建产物
+  { label: "文档站主题一致（toolkit docs theme check）", run: checkDocsTheme },
+  { label: "文档站导航规范（分类 / 命名 / 顶栏）", run: checkDocsNav },
   { label: "CLI 冒烟 --help", args: ["dist/cli.js", "--help"] },
   { label: "CLI 冒烟 mysql-recover --help", args: ["dist/cli.js", "mysql-recover", "--help"] },
   { label: "CLI 冒烟 mysql-recover ddl --help", args: ["dist/cli.js", "mysql-recover", "ddl", "--help"] },
@@ -158,6 +159,45 @@ function runCaptured(step) {
   })
 }
 
+/**
+ * 文档站主题一致性：全局 toolkit 可用时执行 docs theme check，未安装时打印跳过（远程 CI 不依赖该工具）。
+ * @return {number} 退出码
+ */
+function checkDocsTheme() {
+  const probe = spawnSync("toolkit", ["docs", "theme", "--help"], { encoding: "utf8", shell: isWindows })
+  if (probe.status !== 0) {
+    console.log("跳过文档站主题检查（未检测到 toolkit docs theme）")
+    return 0
+  }
+  return spawnSync("toolkit", ["docs", "theme", "check"], { cwd: root, stdio: "inherit", shell: isWindows }).status ?? 1
+}
+
+/**
+ * 文档站导航规范：全局 toolkit 可用时执行 docs nav check，未安装时打印跳过。
+ * @return {number} 退出码
+ */
+function checkDocsNav() {
+  const probe = spawnSync("toolkit", ["docs", "nav", "--help"], { encoding: "utf8", shell: isWindows })
+  if (probe.status !== 0) {
+    console.log("跳过文档站导航检查（未检测到 toolkit docs nav）")
+    return 0
+  }
+  return spawnSync("toolkit", ["docs", "nav", "check"], { cwd: root, stdio: "inherit", shell: isWindows }).status ?? 1
+}
+
+/**
+ * 文档站产物：全局 toolkit 可用时执行 docs dist check，未安装时打印跳过。
+ * @return {number} 退出码
+ */
+function checkDocsDist() {
+  const probe = spawnSync("toolkit", ["docs", "dist", "--help"], { encoding: "utf8", shell: isWindows })
+  if (probe.status !== 0) {
+    console.log("跳过文档站产物检查（未检测到 toolkit docs dist）")
+    return 0
+  }
+  return spawnSync("toolkit", ["docs", "dist", "check"], { cwd: root, stdio: "inherit", shell: isWindows }).status ?? 1
+}
+
 // 安装失败即中止：没有依赖时后续步骤的失败全是噪音，不进入并行组
 if (installStep.skip) {
   console.log(`\n⊘ ${installStep.label}（${installStep.skip}，跳过）`)
@@ -187,11 +227,17 @@ for (const step of steps) {
   }
   console.log(`\n▶ ${step.label}`)
   executed += 1
-  // pnpm / toolkit 在 Windows 上是 .cmd，需经 shell 调用；node 用 process.execPath 直呼，避免路径含空格时被 shell 拆断
-  const command = step.command ?? process.execPath
-  const result = spawnSync(command, step.args, { cwd: root, stdio: "inherit", shell: isWindows && command !== process.execPath, env: { ...process.env, ...step.env } })
+  // 内联函数步骤（工具命令探测）自行返回退出码；其余按 command/args 起子进程
+  let status
+  if (step.run) {
+    status = step.run()
+  } else {
+    // pnpm / toolkit 在 Windows 上是 .cmd，需经 shell 调用；node 用 process.execPath 直呼，避免路径含空格时被 shell 拆断
+    const command = step.command ?? process.execPath
+    status = spawnSync(command, step.args, { cwd: root, stdio: "inherit", shell: isWindows && command !== process.execPath, env: { ...process.env, ...step.env } }).status
+  }
 
-  if (result.status === 0) continue
+  if (status === 0) continue
   failures.push(step.label)
   // 依赖装不上则后续步骤的失败都是噪音，直接中止；其余步骤全跑完，一次暴露全部问题
   if (step.fatal) break
